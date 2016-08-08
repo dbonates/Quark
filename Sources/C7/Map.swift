@@ -2,7 +2,7 @@ public protocol MapInitializable {
     init(map: Map) throws
 }
 
-public protocol MapRepresentable: MapFallibleRepresentable {
+public protocol MapRepresentable : MapFallibleRepresentable {
     var map: Map { get }
 }
 
@@ -16,7 +16,7 @@ extension MapRepresentable {
     }
 }
 
-public protocol MapConvertible: MapInitializable, MapRepresentable {}
+public protocol MapConvertible : MapInitializable, MapRepresentable {}
 
 public enum Map {
     case null

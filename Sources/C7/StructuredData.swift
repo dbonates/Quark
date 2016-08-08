@@ -1,30 +1,30 @@
-public protocol StructuredDataInitializable {
-    init(structuredData: StructuredData) throws
+public protocol MapInitializable {
+    init(map: Map) throws
 }
 
-public protocol StructuredDataRepresentable: StructuredDataFallibleRepresentable {
-    var structuredData: StructuredData { get }
+public protocol MapRepresentable: MapFallibleRepresentable {
+    var map: Map { get }
 }
 
-public protocol StructuredDataFallibleRepresentable {
-    func asStructuredData() throws -> StructuredData
+public protocol MapFallibleRepresentable {
+    func asMap() throws -> Map
 }
 
-extension StructuredDataRepresentable {
-    public func asStructuredData() throws -> StructuredData {
-        return structuredData
+extension MapRepresentable {
+    public func asMap() throws -> Map {
+        return map
     }
 }
 
-public protocol StructuredDataConvertible: StructuredDataInitializable, StructuredDataRepresentable {}
+public protocol MapConvertible: MapInitializable, MapRepresentable {}
 
-public enum StructuredData {
+public enum Map {
     case null
     case bool(Bool)
     case double(Double)
     case int(Int)
     case string(String)
     case data(Data)
-    case array([StructuredData])
-    case dictionary([String: StructuredData])
+    case array([Map])
+    case dictionary([String: Map])
 }

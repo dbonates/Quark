@@ -1,3 +1,3 @@
-public protocol Client: Responder {
+public protocol Client : Responder {
     init(uri: URI) throws
 }

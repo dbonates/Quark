@@ -1,4 +1,4 @@
-public struct Response: Message {
+public struct Response : Message {
     public var version: Version
     public var status: Status
     public var headers: Headers
@@ -23,4 +23,4 @@ public protocol ResponseRepresentable {
     var response: Response { get }
 }
 
-public protocol ResponseConvertible: ResponseInitializable, ResponseRepresentable {}
+public protocol ResponseConvertible : ResponseInitializable, ResponseRepresentable {}

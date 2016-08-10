@@ -1,4 +1,4 @@
-public struct Request: Message {
+public struct Request : Message {
     public var method: Method
     public var uri: URI
     public var version: Version
@@ -24,4 +24,4 @@ public protocol RequestRepresentable {
     var request: Request { get }
 }
 
-public protocol RequestConvertible: RequestInitializable, RequestRepresentable {}
+public protocol RequestConvertible : RequestInitializable, RequestRepresentable {}

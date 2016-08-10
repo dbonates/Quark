@@ -279,7 +279,7 @@ extension Status {
     }
 }
 
-extension Status: Hashable {
+extension Status : Hashable {
     public var hashValue: Int {
         return statusCode
     }

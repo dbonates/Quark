@@ -10,7 +10,6 @@ extension Middleware {
     }
 }
 
-#if swift(>=3.0)
 extension Collection where Self.Iterator.Element == Middleware {
     public func chain(to responder: Responder) -> Responder {
         var responder = responder
@@ -22,16 +21,3 @@ extension Collection where Self.Iterator.Element == Middleware {
         return responder
     }
 }
-#else
-extension CollectionType where Self.Generator.Element == Middleware {
-    public func chain(to responder: Responder) -> Responder {
-        var responder = responder
-
-        for middleware in self.reverse() {
-            responder = middleware.chain(to: responder)
-        }
-
-        return responder
-    }
-}
-#endif

@@ -1,3 +1,3 @@
-public protocol AsyncClient: AsyncResponder {
+public protocol AsyncClient : AsyncResponder {
     init(uri: URI) throws
 }

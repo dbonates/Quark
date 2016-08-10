@@ -43,7 +43,7 @@ extension Method {
     }
 }
 
-extension Method: CustomStringConvertible {
+extension Method : CustomStringConvertible {
     public var description: String {
         #if swift(>=3.0)
         switch self {
@@ -75,7 +75,7 @@ extension Method: CustomStringConvertible {
     }
 }
 
-extension Method: Hashable {
+extension Method : Hashable {
     public var hashValue: Int {
         switch self {
         case .delete:            return 0

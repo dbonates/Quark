@@ -19,15 +19,9 @@ extension Headers : ExpressibleByDictionaryLiteral {
 }
 
 extension Headers : Sequence {
-    #if swift(>=3.0)
     public func makeIterator() -> DictionaryIterator<CaseInsensitiveString, String> {
         return headers.makeIterator()
     }
-    #else
-    public func generate() -> DictionaryGenerator<CaseInsensitiveString, String> {
-        return headers.generate()
-    }
-    #endif
 
     public var count: Int {
         return headers.count

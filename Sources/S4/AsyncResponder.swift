@@ -4,7 +4,7 @@ public protocol AsyncResponder {
 
 public typealias AsyncRespond = (_ to: Request, _ result: ((Void) throws -> Response) -> Void) -> Void
 
-public struct BasicAsyncResponder: AsyncResponder {
+public struct BasicAsyncResponder : AsyncResponder {
     let respond: AsyncRespond
 
     public init(_ respond: AsyncRespond) {

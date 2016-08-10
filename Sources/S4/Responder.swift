@@ -1,4 +1,4 @@
-public protocol Responder: AsyncResponder {
+public protocol Responder : AsyncResponder {
     func respond(to request: Request) throws -> Response
 }
 
@@ -14,7 +14,7 @@ public protocol ResponderRepresentable {
 
 public typealias Respond = @escaping (_ to: Request) throws -> Response
 
-public struct BasicResponder: Responder {
+public struct BasicResponder : Responder {
     let respond: Respond
 
     public init(_ respond: Respond) {

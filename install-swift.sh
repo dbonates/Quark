@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-set -e
-set -o pipefail
-
 snapshot_host="https://zewo-swift-snapshots.s3.amazonaws.com"
 
 if [ -f ".swift-version" ]; then

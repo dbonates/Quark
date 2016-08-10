@@ -34,47 +34,15 @@ fi
 echo "Installing snapshot..."
 echo ""
 
-if [ ! -d "/tmp/swift-snapshot-installation" ]; then
-    mkdir /tmp/swift-snapshot-installation
-fi
+swiftenv install $snapshot
 
 if [ "$(uname)" == "Darwin" ]; then
-    if [ ! -d "/Library/Developer/Toolchains/swift-$snapshot.xctoolchain" ]; then
-        if [ ! -d "/tmp/swift-snapshot-installation/Applications" ]; then
-            curl -fL $snapshot_host/swift-$snapshot-osx.tar | tar -x -C /tmp/swift-snapshot-installation
-            echo ""
-        fi
-
-        echo "Your password is required to move the snapshot to /Library/Developer/Toolchains."
-
-        if [ ! -d "/Library/Developer/Toolchains" ]; then
-            sudo mkdir -p /Library/Developer/Toolchains
-        fi
-
-        sudo mv /tmp/swift-snapshot-installation/Applications/Xcode.app/Contents/Developer/Toolchains/swift-$snapshot.xctoolchain /Library/Developer/Toolchains/swift-$snapshot.xctoolchain
-
-        if [ -d "/Applications/Xcode-beta.app" ]; then
-            sudo ln -s /Applications/Xcode-beta.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/llvm-profdata /Library/Developer/Toolchains/swift-$snapshot.xctoolchain/usr/bin/llvm-profdata
-        fi
-
-        echo ""
-    fi
-elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-    if [ ! -d "/Library/Developer/Toolchains/swift-$snapshot.xctoolchain" ]; then
-        if [ ! -d "/tmp/swift-snapshot-installation/usr" ]; then
-            curl -fl $snapshot_host/swift-$snapshot-ubuntu14.04.tar | tar -x -C /tmp/swift-snapshot-installation
-            echo ""
-        fi
-
-        mkdir -p $SWIFTENV_ROOT/versions/$snapshot
-        mv /tmp/swift-snapshot-installation/usr $SWIFTENV_ROOT/versions/$snapshot/usr
-    fi
+    sudo ln -s /Applications/Xcode-beta.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/llvm-profdata /Library/Developer/Toolchains/swift-$snapshot.xctoolchain/usr/bin/llvm-profdata
+    sudo rm -rf /Library/Developer/Toolchains/swift-$snapshot.xctoolchain/usr/lib/swift/*os
+    sudo rm -rf /Library/Developer/Toolchains/swift-$snapshot.xctoolchain/usr/lib/swift/*simulator
+    find /Library/Developer/Toolchains/swift-$snapshot.xctoolchain -name \*.dylib -exec sudo codesign --remove-signature {} \;
+    find /Library/Developer/Toolchains/swift-$snapshot.xctoolchain -type d -name _CodeSignature -exec sudo rm -rf {} \;
 fi
-
-rm -rf /tmp/swift-snapshot-installation
-
-swiftenv rehash
-
 
 echo "Done installing the snapshot!"
 

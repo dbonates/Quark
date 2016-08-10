@@ -1,29 +1,29 @@
 import XCTest
 import Quark
 
-struct Human : Mappable {
+struct Human : MapConvertible {
     var firstName: String
     var lastName: String
     var age: Int
     var phoneNumber: PhoneNumber
 }
 
-struct PhoneNumber : Mappable {
+struct PhoneNumber : MapConvertible {
     var number: String
     var type: String
 }
 
-struct ServerConfiguration : Mappable {
+struct ServerConfiguration : MapConvertible {
     let host: String
     let port: Int
 }
 
-struct AppConfiguration : Mappable {
+struct AppConfiguration : MapConvertible {
     let server: ServerConfiguration
 }
 
-class MappableTests : XCTestCase {
-    func testMappable() throws {
+class MapConvertibleTests : XCTestCase {
+    func testMapConvertible() throws {
         let map: Map = [
             "firstName": "Jane",
             "lastName": "Miller",
@@ -42,7 +42,7 @@ class MappableTests : XCTestCase {
         XCTAssertEqual(person.phoneNumber.type, "work")
     }
 
-    func testMappableMissingValues() throws {
+    func testMapConvertibleMissingValues() throws {
         var map: Map
 
         map = [
@@ -68,7 +68,7 @@ class MappableTests : XCTestCase {
         XCTAssertThrowsError(try Human(map: map))
     }
 
-    func testMappableExtraValues() throws {
+    func testMapConvertibleExtraValues() throws {
         let map: Map = [
             "firstName": "Jane",
             "lastName": "Miller",
@@ -89,7 +89,7 @@ class MappableTests : XCTestCase {
         XCTAssertEqual(person.phoneNumber.type, "work")
     }
 
-    func testGenericMappable() throws {
+    func testGenericMapConvertible() throws {
         func getValues() -> Map {
             return [
                 "CfUserTextEncoding": "0x1F5:0x0:0x0",
@@ -119,7 +119,7 @@ class MappableTests : XCTestCase {
             ]
         }
 
-        func construct<Config : Mappable>(construct: (Config) -> Void) throws {
+        func construct<Config : MapConvertible>(construct: (Config) -> Void) throws {
             let map = getValues()
             try construct(Config(map: map))
         }
@@ -131,11 +131,11 @@ class MappableTests : XCTestCase {
     }
 }
 
-extension MappableTests {
-    static var allTests: [(String, (MappableTests) -> () throws -> Void)] {
+extension MapConvertibleTests {
+    static var allTests: [(String, (MapConvertibleTests) -> () throws -> Void)] {
         return [
-            ("testMappable", testMappable),
-            ("testGenericMappable", testGenericMappable),
+            ("testMapConvertible", testMapConvertible),
+            ("testGenericMapConvertible", testGenericMapConvertible),
         ]
     }
 }

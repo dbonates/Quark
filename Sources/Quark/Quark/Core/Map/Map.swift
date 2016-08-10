@@ -11,10 +11,6 @@ public enum MapError : Error {
     case cannotInitialize(type: Any.Type, from: Any.Type)
 }
 
-// MARK: Mappable
-
-public protocol Mappable : MapInitializable, MapFallibleRepresentable {}
-
 // MARK: Parser/Serializer Protocols
 
 public protocol MapParser {

@@ -5,9 +5,9 @@ enum TestResourceError : Error {
     case error
 }
 
-struct EmptyResource : CustomResource {}
+struct EmptyResource : Resource {}
 
-struct TestResource : CustomResource {
+struct TestResource : Resource {
     func custom(routes: ResourceRoutes) {
         routes.get("/foo") { _ in
             return Response()
@@ -15,7 +15,7 @@ struct TestResource : CustomResource {
     }
 }
 
-struct CustomRecoverResource : CustomResource {
+struct CustomRecoverResource : Resource {
     func custom(routes: ResourceRoutes) {
         routes.get("/foo") { _ in
             throw TestRouterError.error
@@ -27,7 +27,7 @@ struct CustomRecoverResource : CustomResource {
     }
 }
 
-struct CompleteResource : CustomResource {
+struct CompleteResource : Resource {
     func list(request: Request) throws -> Response {
         return Response()
     }
@@ -80,7 +80,7 @@ class ResourceTests : XCTestCase {
         XCTAssertEqual(response.status, .notFound)
     }
 
-    func testCustomResource() throws {
+    func testResource() throws {
         let resource = TestResource()
         let request = try Request(method: .get, uri: "/foo")
         let response = try resource.router.respond(to: request)
@@ -94,7 +94,7 @@ class ResourceTests : XCTestCase {
         XCTAssertEqual(response.status, .ok)
     }
 
-    func testResource() throws {
+    func testCompleteResource() throws {
         let resource = CompleteResource()
 
         var request = Request()
@@ -125,9 +125,9 @@ extension ResourceTests {
     static var allTests: [(String, (ResourceTests) -> () throws -> Void)] {
         return [
             ("testEmptyResource", testEmptyResource),
-            ("testCustomResource", testCustomResource),
-            ("testCustomRecoverResource", testCustomRecoverResource),
             ("testResource", testResource),
+            ("testCustomRecoverResource", testCustomRecoverResource),
+            ("testCompleteResource", testCompleteResource),
         ]
     }
 }

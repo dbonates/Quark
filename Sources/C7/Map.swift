@@ -16,7 +16,7 @@ extension MapRepresentable {
     }
 }
 
-public protocol MapConvertible : MapInitializable, MapRepresentable {}
+public protocol MapConvertible : MapInitializable, MapFallibleRepresentable {}
 
 public enum Map {
     case null

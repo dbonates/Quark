@@ -1,4 +1,4 @@
-public protocol CustomResource : RouterRepresentable {
+public protocol Resource : RouterRepresentable {
     associatedtype ID : PathParameterConvertible = String
     associatedtype Model : MapInitializable = Map
 
@@ -26,13 +26,13 @@ public protocol CustomResource : RouterRepresentable {
 // Warning: This is here due to a compiler bug.
 // This will have to be deleted once we split Venice from Quark
 
-public extension CustomResource {
+public extension Resource {
     var fileType: C7.File.Type {
         return File.self
     }
 }
 
-public extension CustomResource {
+public extension Resource {
     var staticFilesPath: String {
         return "Public"
     }
@@ -42,37 +42,37 @@ public extension CustomResource {
     }
 }
 
-public extension CustomResource {
+public extension Resource {
     func list(request: Request) throws -> Response {
         throw ClientError.notFound
     }
 }
 
-public extension CustomResource {
+public extension Resource {
     func create(request: Request, content: CreateInput) throws -> Response {
         throw ClientError.notFound
     }
 }
 
-public extension CustomResource {
+public extension Resource {
     func detail(request: Request, id: DetailID) throws -> Response {
         throw ClientError.notFound
     }
 }
 
-public extension CustomResource {
+public extension Resource {
     func update(request: Request, id: UpdateID, content: UpdateInput) throws -> Response {
         throw ClientError.notFound
     }
 }
 
-public extension CustomResource {
+public extension Resource {
     func destroy(request: Request, id: DestroyID) throws -> Response {
         throw ClientError.notFound
     }
 }
 
-public extension CustomResource {
+public extension Resource {
     func recover(error: Error) throws -> Response {
         return try RecoveryMiddleware.recover(error: error)
     }
@@ -80,7 +80,7 @@ public extension CustomResource {
     func custom(routes: ResourceRoutes) {}
 }
 
-extension CustomResource {
+extension Resource {
     public var router: BasicRouter {
         let routes = ResourceRoutes(staticFilesPath: staticFilesPath, fileType: fileType)
         custom(routes: routes)

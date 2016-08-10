@@ -25,3 +25,13 @@ public protocol RequestRepresentable {
 }
 
 public protocol RequestConvertible : RequestInitializable, RequestRepresentable {}
+
+extension Request : RequestConvertible {
+    public init(request: Request) {
+        self = request
+    }
+
+    public var request: Request {
+        return self
+    }
+}

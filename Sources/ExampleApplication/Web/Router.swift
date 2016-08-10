@@ -1,9 +1,9 @@
-struct Credentials : Mappable {
+struct Credentials : MapConvertible {
     let email: String
     let password: String
 }
 
-public struct Router : CustomRouter {
+public struct MainRouter : Router {
     let app: Application
     let todos: TodoResource
 

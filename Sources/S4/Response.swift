@@ -24,3 +24,13 @@ public protocol ResponseRepresentable {
 }
 
 public protocol ResponseConvertible : ResponseInitializable, ResponseRepresentable {}
+
+extension Response : ResponseConvertible {
+    public init(response: Response) {
+        self = response
+    }
+
+    public var response: Response {
+        return self
+    }
+}

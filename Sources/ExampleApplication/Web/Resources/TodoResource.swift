@@ -1,4 +1,4 @@
-struct TodoResource : CustomResource {
+struct TodoResource : Resource {
     let controller: TodoController
 
     func list() throws -> Response {

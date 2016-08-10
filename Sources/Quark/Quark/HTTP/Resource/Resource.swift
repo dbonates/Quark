@@ -1,4 +1,4 @@
-public protocol Resource : RouterRepresentable {
+public protocol CustomResource : RouterRepresentable {
     associatedtype ID : PathParameterConvertible = String
     associatedtype Model : MapInitializable = Map
 
@@ -26,13 +26,13 @@ public protocol Resource : RouterRepresentable {
 // Warning: This is here due to a compiler bug.
 // This will have to be deleted once we split Venice from Quark
 
-public extension Resource {
+public extension CustomResource {
     var fileType: C7.File.Type {
         return File.self
     }
 }
 
-public extension Resource {
+public extension CustomResource {
     var staticFilesPath: String {
         return "Public"
     }
@@ -42,37 +42,37 @@ public extension Resource {
     }
 }
 
-public extension Resource {
+public extension CustomResource {
     func list(request: Request) throws -> Response {
         throw ClientError.notFound
     }
 }
 
-public extension Resource {
+public extension CustomResource {
     func create(request: Request, content: CreateInput) throws -> Response {
         throw ClientError.notFound
     }
 }
 
-public extension Resource {
+public extension CustomResource {
     func detail(request: Request, id: DetailID) throws -> Response {
         throw ClientError.notFound
     }
 }
 
-public extension Resource {
+public extension CustomResource {
     func update(request: Request, id: UpdateID, content: UpdateInput) throws -> Response {
         throw ClientError.notFound
     }
 }
 
-public extension Resource {
+public extension CustomResource {
     func destroy(request: Request, id: DestroyID) throws -> Response {
         throw ClientError.notFound
     }
 }
 
-public extension Resource {
+public extension CustomResource {
     func recover(error: Error) throws -> Response {
         return try RecoveryMiddleware.recover(error: error)
     }
@@ -80,8 +80,8 @@ public extension Resource {
     func custom(routes: ResourceRoutes) {}
 }
 
-extension Resource {
-    public var router: RouterProtocol {
+extension CustomResource {
+    public var router: BasicRouter {
         let routes = ResourceRoutes(staticFilesPath: staticFilesPath, fileType: fileType)
         custom(routes: routes)
         routes.list(respond: list)
@@ -89,6 +89,6 @@ extension Resource {
         routes.detail(respond: detail)
         routes.update(respond: update)
         routes.destroy(respond: destroy)
-        return BasicResource(recover: recover, middleware: middleware, routes: routes)
+        return BasicRouter(recover: recover, middleware: middleware, routes: routes)
     }
 }

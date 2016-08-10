@@ -5,9 +5,9 @@ enum TestResourceError : Error {
     case error
 }
 
-struct EmptyResource : Resource {}
+struct EmptyResource : CustomResource {}
 
-struct CustomResource : Resource {
+struct TestResource : CustomResource {
     func custom(routes: ResourceRoutes) {
         routes.get("/foo") { _ in
             return Response()
@@ -15,7 +15,7 @@ struct CustomResource : Resource {
     }
 }
 
-struct CustomRecoverResource : Resource {
+struct CustomRecoverResource : CustomResource {
     func custom(routes: ResourceRoutes) {
         routes.get("/foo") { _ in
             throw TestRouterError.error
@@ -27,7 +27,7 @@ struct CustomRecoverResource : Resource {
     }
 }
 
-struct TestResource : Resource {
+struct CompleteResource : CustomResource {
     func list(request: Request) throws -> Response {
         return Response()
     }
@@ -81,7 +81,7 @@ class ResourceTests : XCTestCase {
     }
 
     func testCustomResource() throws {
-        let resource = CustomResource()
+        let resource = TestResource()
         let request = try Request(method: .get, uri: "/foo")
         let response = try resource.router.respond(to: request)
         XCTAssertEqual(response.status, .ok)
@@ -95,7 +95,7 @@ class ResourceTests : XCTestCase {
     }
 
     func testResource() throws {
-        let resource = TestResource()
+        let resource = CompleteResource()
 
         var request = Request()
         var response = try resource.router.respond(to: request)

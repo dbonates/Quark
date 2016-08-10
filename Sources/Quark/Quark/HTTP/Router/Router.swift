@@ -1,6 +1,4 @@
-public typealias MainRouter = Router
-
-public protocol Router : RouterRepresentable {
+public protocol CustomRouter : RouterRepresentable {
     var staticFilesPath: String { get }
     var fileType: C7.File.Type { get }
     var middleware: [Middleware] { get }
@@ -12,13 +10,13 @@ public protocol Router : RouterRepresentable {
 // Warning: This is here due to a compiler bug.
 // This will have to be deleted once we split Venice from Quark
 
-extension Router {
+extension CustomRouter {
     public var fileType: C7.File.Type {
         return File.self
     }
 }
 
-extension Router {
+extension CustomRouter {
     public var staticFilesPath: String {
         return "Public"
     }
@@ -34,8 +32,8 @@ extension Router {
     public func custom(routes: Routes) {}
 }
 
-extension Router {
-    public var router: RouterProtocol {
+extension CustomRouter {
+    public var router: BasicRouter {
         let routes = Routes(staticFilesPath: staticFilesPath, fileType: fileType)
         custom(routes: routes)
         return BasicRouter(recover: recover, middleware: middleware, routes: routes)

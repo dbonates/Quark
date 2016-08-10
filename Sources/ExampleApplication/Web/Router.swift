@@ -3,7 +3,7 @@ struct Credentials : Mappable {
     let password: String
 }
 
-public struct Router : MainRouter {
+public struct Router : CustomRouter {
     let app: Application
     let todos: TodoResource
 

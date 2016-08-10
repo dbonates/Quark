@@ -1,52 +1,28 @@
 import XCTest
 @testable import Quark
 
-struct TestServer : ConfigurableServer {
-    let middleware: [Middleware]
-    let responder: Responder
-
-    init(middleware: [Middleware], responder: Responder, configuration: Map) throws {
-        self.middleware = middleware
-        self.responder = responder
-        XCTAssertEqual(configuration["server", "log"], true)
-    }
-
-    func start() throws {
-        let request = Request()
-        let response = try middleware.chain(to: responder).respond(to: request)
-        XCTAssertEqual(response.status, .ok)
-        serverStartCalled = true
-    }
-}
-
-struct TestResponderRepresentable : ResponderRepresentable {
-    var responder: Responder {
-        return BasicResponder { _ in
-            return Response()
-        }
-    }
-}
-
-var serverStartCalled = false
-
 class QuarkTests : XCTestCase {
     func testConfiguration() throws {
-        let file = try File(path: "/tmp/TestConfiguration.swift", mode: .truncateWrite)
+        var called = false
+        let file = try File(path: "/tmp/TestConfiguration", mode: .truncateWrite)
         try file.write("import Quark\n\nconfiguration = [\"server\": [\"log\": true]]")
-        Quark.configure(configurationFile: "/tmp/TestConfiguration.swift", arguments: [], server: TestServer.self) { (configuration: Map) in
+        Quark.configure(configurationFile: "/tmp/TestConfiguration", arguments: []) { (configuration: Map) in
             XCTAssertEqual(configuration["server", "log"], true)
-            return TestResponderRepresentable()
+            called = true
         }
-        XCTAssertTrue(serverStartCalled)
+        XCTAssertTrue(called)
     }
 
     func testConfigurationFailure() throws {
-        let file = try File(path: "/tmp/TestConfiguration.swift", mode: .truncateWrite)
+        var called = false
+        let file = try File(path: "/tmp/TestConfiguration", mode: .truncateWrite)
         try file.write("import Quark\n\nconfiguration = [\"server\": [\"log\": true]]")
-        configure(configurationFile: "/tmp/TestConfiguration.swift", server: TestServer.self) { (configuration: Map) in
+        configure(configurationFile: "/tmp/TestConfiguration", arguments: []) { (configuration: Map) in
             XCTAssertEqual(configuration["server", "log"], true)
+            called = true
             throw ServerError.internalServerError
         }
+        XCTAssertTrue(called)
     }
 
     func testQuarkErrorDescription() throws {
@@ -65,37 +41,37 @@ class QuarkTests : XCTestCase {
 
     func testLoadCommandLineArguments() throws {
         var arguments = ["-server.log", "-server.host", "127.0.0.1", "-server.port", "8080"]
-        var parsed = try Quark.load(commandLineArguments: arguments)
+        var parsed = try Quark.load(arguments: arguments)
         XCTAssertEqual(parsed, ["server": ["log": true, "host": "127.0.0.1", "port": 8080]])
 
         arguments = ["-server.host", "127.0.0.1", "-server.log", "-server.port", "8080"]
-        parsed = try Quark.load(commandLineArguments: arguments)
+        parsed = try Quark.load(arguments: arguments)
         XCTAssertEqual(parsed, ["server": ["log": true, "host": "127.0.0.1", "port": 8080]])
 
         arguments = ["-server.host", "127.0.0.1", "-server.port", "8080", "-server.log"]
-        parsed = try Quark.load(commandLineArguments: arguments)
+        parsed = try Quark.load(arguments: arguments)
         XCTAssertEqual(parsed, ["server": ["log": true, "host": "127.0.0.1", "port": 8080]])
 
         arguments = ["-server.log", "-server.port", "8080", "-server.host", "127.0.0.1"]
-        parsed = try Quark.load(commandLineArguments: arguments)
+        parsed = try Quark.load(arguments: arguments)
         XCTAssertEqual(parsed, ["server": ["log": true, "host": "127.0.0.1", "port": 8080]])
 
         arguments = ["-server.port", "8080", "-server.log", "-server.host", "127.0.0.1"]
-        parsed = try Quark.load(commandLineArguments: arguments)
+        parsed = try Quark.load(arguments: arguments)
         XCTAssertEqual(parsed, ["server": ["log": true, "host": "127.0.0.1", "port": 8080]])
 
         arguments = ["-server.port", "8080", "-server.host", "127.0.0.1", "-server.log"]
-        parsed = try Quark.load(commandLineArguments: arguments)
+        parsed = try Quark.load(arguments: arguments)
         XCTAssertEqual(parsed, ["server": ["log": true, "host": "127.0.0.1", "port": 8080]])
 
         arguments = ["foo"]
-        XCTAssertThrowsError(try Quark.load(commandLineArguments: arguments))
+        XCTAssertThrowsError(try Quark.load(arguments: arguments))
 
         arguments = ["-foo", "bar", "baz"]
-        XCTAssertThrowsError(try Quark.load(commandLineArguments: arguments))
+        XCTAssertThrowsError(try Quark.load(arguments: arguments))
 
         arguments = ["-foo", "-bar", "baz", "buh"]
-        XCTAssertThrowsError(try Quark.load(commandLineArguments: arguments))
+        XCTAssertThrowsError(try Quark.load(arguments: arguments))
     }
 
     func testLoadEnvironmentVariables() throws {

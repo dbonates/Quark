@@ -48,12 +48,11 @@ public struct TrieRouteMatcher {
             return route
         }
 
-        let parametersMiddleware = PathParameterMiddleware(parameters)
-
         // wrap the route to inject the pathParameters upon receiving a request
         return Route(
             path: route.path,
-            actions: route.actions.mapValues({parametersMiddleware.chain(to: $0)}),
+            middleware: [PathParameterMiddleware(parameters)],
+            actions: route.actions,
             fallback: route.fallback
         )
     }

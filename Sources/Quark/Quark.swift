@@ -17,75 +17,55 @@ extension QuarkError : CustomStringConvertible {
     }
 }
 
-public var configuration: Map = nil {
-    willSet(configuration) {
-        do {
-            let file = try File(path: "/tmp/QuarkConfiguration", mode: .truncateWrite)
-            let serializer = JSONMapSerializer()
-            let data = try serializer.serialize(configuration)
-            try file.write(data)
-        } catch {
-            fatalError(String(describing: error))
+private var configured = false
+
+public var configuration: Map = loadConfiguration() {
+    didSet {
+        if !configured {
+            do {
+                let file = try File(path: "/tmp/QuarkConfiguration", mode: .truncateWrite)
+                let serializer = JSONMapSerializer()
+                let data = try serializer.serialize(configuration)
+                try file.write(data)
+            } catch {
+                fatalError(String(describing: error))
+            }
         }
     }
 }
 
-public typealias Configuration = MapInitializable
-
-public protocol ConfigurableServer {
-    init(middleware: [Middleware], responder: Responder, configuration: Map) throws
-    func start() throws
-}
-
-public func configure<AppConfiguration : Configuration>(configurationFile: String = "Configuration.swift", arguments: [String] = CommandLine.arguments, server: ConfigurableServer.Type, configuration: (AppConfiguration) throws -> ResponderRepresentable) {
+private func loadConfiguration() -> Map {
     do {
-        let appConfiguration = try loadConfiguration(configurationFilePath: configurationFile, arguments: arguments)
-        let responder = try configuration(AppConfiguration(map: appConfiguration))
-        try configure(server: server, responder: responder.responder, configuration: appConfiguration)
+        return try loadConfiguration(
+            configurationFile: "Configuration/Configuration",
+            arguments: CommandLine.arguments
+        )
     } catch {
-        print(error)
+        fatalError(String(describing: error))
     }
 }
 
-private func configure(server: ConfigurableServer.Type, responder: Responder, configuration: Map) throws {
-    var middleware: [Middleware] = []
+private func loadConfiguration(configurationFile: String, arguments: [String]) throws -> Map {
+    let environmentVariables = load(environmentVariables: environment.variables)
+    let commandLineArguments = try load(arguments: Array(arguments.dropFirst()))
 
-    if configuration["server", "log"]?.asBool == true {
-        middleware.append(LogMiddleware())
-    }
-
-    middleware.append(SessionMiddleware())
-    middleware.append(ContentNegotiationMiddleware(mediaTypes: [JSON.self, URLEncodedForm.self]))
-
-    try server.init(
-        middleware: middleware,
-        responder: responder,
-        configuration: configuration
-    ).start()
-}
-
-private func loadConfiguration(configurationFilePath: String, arguments: [String]) throws -> Map {
-    let arguments = !arguments.isEmpty ? Array(arguments.suffix(from: 1)) : []
-    let environmentVariables = try load(environmentVariables: environment.variables)
-    let commandLineArguments = try load(commandLineArguments: arguments)
-
-    if let workingDirectory = commandLineArguments["workingDirectory"]?.asString ?? environmentVariables["workingDirectory"]?.asString {
+    if let workingDirectory = commandLineArguments["workingDirectory"]?.string ?? environmentVariables["workingDirectory"]?.string {
         try File.changeWorkingDirectory(path: workingDirectory)
     }
 
-    let configurationFile = try load(configurationFile: configurationFilePath)
+    let configurationFile = try load(configurationFile: configurationFile)
     var configuration: Map = [:]
 
     for (key, value) in configurationFile {
-        try configuration.set(value: value, at: key)
+        try configuration.set(value: value, for: key)
     }
 
     for (key, value) in environmentVariables {
-        try configuration.set(value: value, at: key)
+        try configuration.set(value: value, for: key)
     }
 
     for (key, value) in commandLineArguments {
-        try configuration.set(value: value, at: key)
+        try configuration.set(value: value, for: key)
     }
 
     return configuration
@@ -114,10 +94,12 @@ private func load(configurationFile: String) throws -> [String: Map] {
     let file = try File(path: "/tmp/QuarkConfiguration")
     let parser = JSONMapParser()
     let data = try file.readAll()
-    return try parser.parse(data).asDictionary()
+    let configuration = try parser.parse(data).asDictionary()
+    configured = true
+    return configuration
 }
 
-func load(commandLineArguments arguments: [String]) throws -> [String: Map] {
+func load(arguments: [String]) throws -> [String: Map] {
     var parameters: Map = [:]
 
     var currentParameter = ""
@@ -135,7 +117,7 @@ func load(commandLineArguments arguments: [String]) throws -> [String: Map] {
             } else {
                 value = true
                 let indexPath = currentParameter.indexPath()
-                try parameters.set(value: value, at: indexPath)
+                try parameters.set(value: value, for: indexPath)
                 hasParameter = false
                 continue
             }
@@ -143,23 +125,23 @@ func load(commandLineArguments arguments: [String]) throws -> [String: Map] {
         if hasParameter {
             let value = parse(value: arguments[i])
             let indexPath = currentParameter.indexPath()
-            try parameters.set(value: value, at: indexPath)
+            try parameters.set(value: value, for: indexPath)
             hasParameter = false
             i += 1
         } else {
-            throw QuarkError.invalidArgument(description: "\(arguments[i]) is a malformed parameter. Parameters should be provided in the format -parameter value.")
+            throw QuarkError.invalidArgument(description: "\(arguments[i]) is a malformed parameter. Parameters should be provided in the format -parameter [value].")
         }
     }
 
     if hasParameter {
         let indexPath = currentParameter.indexPath()
-        try parameters.set(value: true, at: indexPath)
+        try parameters.set(value: true, for: indexPath)
     }
 
-    return parameters.asDictionary!
+    return parameters.dictionary!
 }
 
-func load(environmentVariables: [String: String]) throws -> [String: Map] {
+func load(environmentVariables: [String: String]) -> [String: Map] {
     var variables: [String: Map] = [:]
 
     for (key, value) in environmentVariables {

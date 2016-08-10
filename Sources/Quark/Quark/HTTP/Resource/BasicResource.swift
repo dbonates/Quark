@@ -1,18 +1,30 @@
-public struct BasicResource : RouterProtocol {
+public struct BasicResource {
     public let middleware: [Middleware]
     public let routes: [Route]
     public let fallback: Responder
     public let matcher: TrieRouteMatcher
 
     init(
+        middleware: [Middleware],
+        routes: [Route],
+        fallback: Responder
+        ) {
+        self.middleware = middleware
+        self.routes = routes
+        self.fallback = fallback
+        self.matcher = TrieRouteMatcher(routes: routes)
+    }
+
+    init(
         recover: Recover,
         middleware: [Middleware],
         routes: ResourceRoutes
         ) {
-        self.middleware = [RecoveryMiddleware(recover)] + middleware
-        self.routes = routes.routes
-        self.fallback = routes.fallback
-        self.matcher = TrieRouteMatcher(routes: routes.routes)
+        self.init(
+            middleware: [RecoveryMiddleware(recover)] + middleware,
+            routes: routes.routes,
+            fallback: routes.fallback
+        )
     }
 
     public init(
@@ -24,10 +36,29 @@ public struct BasicResource : RouterProtocol {
         ) {
         let r = ResourceRoutes(staticFilesPath: staticFilesPath, fileType: fileType)
         routes(r)
-        self.init(recover: recover, middleware: middleware, routes: r)
+        self.init(
+            middleware: [RecoveryMiddleware(recover)] + middleware,
+            routes: r.routes,
+            fallback: r.fallback
+        )
     }
+}
 
-    public func match(_ request: Request) -> Route? {
-        return matcher.match(request)
+extension BasicResource : Responder {
+    public func respond(to request: Request) throws -> Response {
+        let responder = matcher.match(request) ?? fallback
+        return try middleware.chain(to: responder).respond(to: request)
+    }
+}
+
+extension BasicResource : RouterRepresentable {
+    public var router: BasicRouter {
+        return BasicRouter(middleware: middleware, routes: routes, fallback: fallback)
+    }
+}
+
+extension BasicResource : ResponderRepresentable {
+    public var responder: Responder {
+        return self
     }
 }

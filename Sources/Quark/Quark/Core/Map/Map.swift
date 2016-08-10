@@ -170,31 +170,31 @@ extension Map {
 // MARK: as<type>?
 
 extension Map {
-    public var asBool: Bool? {
+    public var bool: Bool? {
         return try? get()
     }
 
-    public var asDouble: Double? {
+    public var double: Double? {
         return try? get()
     }
 
-    public var asInt: Int? {
+    public var int: Int? {
         return try? get()
     }
 
-    public var asString: String? {
+    public var string: String? {
         return try? get()
     }
 
-    public var asData: Data? {
+    public var data: Data? {
         return try? get()
     }
 
-    public var asArray: [Map]? {
+    public var array: [Map]? {
         return try? get()
     }
 
-    public var asDictionary: [String: Map]? {
+    public var dictionary: [String: Map]? {
         return try? get()
     }
 }
@@ -434,7 +434,12 @@ extension String : IndexPathElement {
 // MARK: Get
 
 extension Map {
-    public func get<T>(at indexPath: IndexPathElement...) throws -> T {
+    public func get<T : MapInitializable>(_ indexPath: IndexPathElement...) throws -> T {
+        let map = try get(indexPath)
+        return try T(map: map)
+    }
+
+    public func get<T>(_ indexPath: IndexPathElement...) throws -> T {
         if indexPath.isEmpty {
             switch self {
             case .bool(let value as T): return value
@@ -447,14 +452,14 @@ extension Map {
             default: throw MapError.incompatibleType
             }
         }
-        return try get(at: indexPath).get()
+        return try get(indexPath).get()
     }
 
-    public func get(at indexPath: IndexPathElement...) throws -> Map {
-        return try get(at: indexPath)
+    public func get(_ indexPath: IndexPathElement...) throws -> Map {
+        return try get(indexPath)
     }
 
-    public func get(at indexPath: IndexPath) throws -> Map {
+    public func get(_ indexPath: IndexPath) throws -> Map {
         var value: Map = self
 
         for element in indexPath {
@@ -484,15 +489,15 @@ extension Map {
 // MARK: Set
 
 extension Map {
-    public mutating func set<T : MapRepresentable>(value: T, at indexPath: IndexPathElement...) throws {
-        try set(value: value, at: indexPath)
+    public mutating func set<T : MapRepresentable>(value: T, for indexPath: IndexPathElement...) throws {
+        try set(value: value, for: indexPath)
     }
 
-    public mutating func set<T : MapRepresentable>(value: T, at indexPath: [IndexPathElement]) throws {
-        try set(value: value, merging: true, at: indexPath)
+    public mutating func set<T : MapRepresentable>(value: T, for indexPath: [IndexPathElement]) throws {
+        try set(value: value, for: indexPath, merging: true)
     }
 
-    fileprivate mutating func set<T : MapRepresentable>(value: T, merging: Bool, at indexPath: [IndexPathElement]) throws {
+    fileprivate mutating func set<T : MapRepresentable>(value: T, for indexPath: [IndexPathElement], merging: Bool) throws {
         var indexPath = indexPath
 
         guard let first = indexPath.first else {
@@ -516,8 +521,8 @@ extension Map {
             case .key(let key):
                 if case .dictionary(var dictionary) = self {
                     let newValue = value.map
-                    if let existingDictionary = dictionary[key]?.asDictionary,
-                        let newDictionary = newValue.asDictionary,
+                    if let existingDictionary = dictionary[key]?.dictionary,
+                        let newDictionary = newValue.dictionary,
                         merging {
                         var combinedDictionary: [String: Map] = [:]
 
@@ -539,9 +544,9 @@ extension Map {
                 }
             }
         } else {
-            var next = (try? self.get(at: first)) ?? first.constructEmptyContainer
-            try next.set(value: value, at: indexPath)
-            try self.set(value: next, at: [first])
+            var next = (try? self.get(first)) ?? first.constructEmptyContainer
+            try next.set(value: value, for: indexPath)
+            try self.set(value: next, for: [first])
         }
     }
 }
@@ -549,11 +554,11 @@ extension Map {
 // MARK: Remove
 
 extension Map {
-    public mutating func remove(at indexPath: IndexPathElement...) throws {
-        try self.remove(at: indexPath)
+    public mutating func remove(_ indexPath: IndexPathElement...) throws {
+        try self.remove(indexPath)
     }
 
-    public mutating func remove(at indexPath: [IndexPathElement]) throws {
+    public mutating func remove(_ indexPath: [IndexPathElement]) throws {
         var indexPath = indexPath
 
         guard let first = indexPath.first else {
@@ -570,11 +575,11 @@ extension Map {
             dictionary[key] = nil
             self = .dictionary(dictionary)
         } else {
-            guard var next = try? self.get(at: first) else {
+            guard var next = try? self.get(first) else {
                 throw MapError.valueNotFound
             }
-            try next.remove(at: indexPath)
-            try self.set(value: next, merging: false, at: [first])
+            try next.remove(indexPath)
+            try self.set(value: next, for: [first], merging: false)
         }
     }
 }
@@ -594,15 +599,15 @@ extension Map {
 
     public subscript(indexPath: [IndexPathElement]) -> Map? {
         get {
-            return try? self.get(at: indexPath)
+            return try? self.get(indexPath)
         }
 
         set(value) {
             do {
                 if let value = value {
-                    try self.set(value: value, at: indexPath)
+                    try self.set(value: value, for: indexPath)
                 } else {
-                    try self.remove(at: indexPath)
+                    try self.remove(indexPath)
                 }
             } catch {
                 fatalError(String(describing: error))
@@ -671,7 +676,7 @@ extension Map : ExpressibleByStringLiteral {
 
 extension Map : ExpressibleByStringInterpolation {
     public init(stringInterpolation strings: Map...) {
-        self = .string(strings.reduce("") { $0 + $1.asString! })
+        self = .string(strings.reduce("") { $0 + $1.string! })
     }
 
     public init<T>(stringInterpolationSegment expr: T) {

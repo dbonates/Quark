@@ -1,6 +1,18 @@
 import XCTest
 @testable import Quark
 
+extension Server {
+    init(host: C7.Host, responder: Responder) throws {
+        self.tcpHost = host
+        self.host = "127.0.0.1"
+        self.port = 8080
+        self.bufferSize = 2048
+        self.middleware = []
+        self.responder = responder
+        self.failure = Server.log(error:)
+    }
+}
+
 class TestHost : C7.Host {
     let data: C7.Data
 
@@ -29,16 +41,9 @@ class ServerTests : XCTestCase {
 
         let server = try Server(
             host: TestHost(data: "GET / HTTP/1.1\r\n\r\n"),
-            port: 8080,
-            parser: RequestParser.self,
-            serializer: ResponseSerializer.self,
-            middleware: [],
-            responder: responder,
-            failure: { _ in
-                XCTFail()
-            }
+            responder: responder
         )
-        let stream = try server.host.accept()
+        let stream = try server.tcpHost.accept()
         server.printHeader()
         try server.process(stream: stream)
         XCTAssert(String(describing: (stream as! Drain).data).contains(substring: "OK"))
@@ -58,16 +63,9 @@ class ServerTests : XCTestCase {
 
         let server = try Server(
             host: TestHost(data: "GET / HTTP/1.1\r\n\r\n"),
-            port: 8080,
-            parser: RequestParser.self,
-            serializer: ResponseSerializer.self,
-            middleware: [],
-            responder: responder,
-            failure: { _ in
-                XCTFail()
-            }
+            responder: responder
         )
-        stream = try server.host.accept()
+        stream = try server.tcpHost.accept()
         try server.process(stream: stream)
         XCTAssert(String(describing: (stream as! Drain).data).contains(substring: "Bad Request"))
         XCTAssert(called)
@@ -86,16 +84,9 @@ class ServerTests : XCTestCase {
 
         let server = try Server(
             host: TestHost(data: "GET / HTTP/1.1\r\n\r\n"),
-            port: 8080,
-            parser: RequestParser.self,
-            serializer: ResponseSerializer.self,
-            middleware: [],
-            responder: responder,
-            failure: { _ in
-                XCTFail()
-            }
+            responder: responder
         )
-        stream = try server.host.accept()
+        stream = try server.tcpHost.accept()
         XCTAssertThrowsError(try server.process(stream: stream))
         XCTAssert(String(describing: (stream as! Drain).data).contains(substring: "Internal Server Error"))
         XCTAssert(called)
@@ -116,16 +107,9 @@ class ServerTests : XCTestCase {
 
         let server = try Server(
             host: TestHost(data: request),
-            port: 8080,
-            parser: RequestParser.self,
-            serializer: ResponseSerializer.self,
-            middleware: [],
-            responder: responder,
-            failure: { _ in
-                XCTFail()
-            }
+            responder: responder
         )
-        stream = try server.host.accept()
+        stream = try server.tcpHost.accept()
         try server.process(stream: stream)
         XCTAssertEqual((stream as! Drain).data, request)
         XCTAssert(called)
@@ -146,16 +130,9 @@ class ServerTests : XCTestCase {
 
         let server = try Server(
             host: TestHost(data: request),
-            port: 8080,
-            parser: RequestParser.self,
-            serializer: ResponseSerializer.self,
-            middleware: [],
-            responder: responder,
-            failure: { _ in
-                XCTFail()
-            }
+            responder: responder
         )
-        stream = try server.host.accept()
+        stream = try server.tcpHost.accept()
         try server.process(stream: stream)
         XCTAssert(String(describing: (stream as! Drain).data).contains(substring: "OK"))
         XCTAssertTrue(stream.closed)
@@ -185,16 +162,9 @@ class ServerTests : XCTestCase {
 
         let server = try Server(
             host: TestHost(data: request),
-            port: 8080,
-            parser: RequestParser.self,
-            serializer: ResponseSerializer.self,
-            middleware: [],
-            responder: responder,
-            failure: { _ in
-                XCTFail()
-            }
+            responder: responder
         )
-        stream = try server.host.accept()
+        stream = try server.tcpHost.accept()
         try server.process(stream: stream)
         XCTAssert(String(describing: (stream as! Drain).data).contains(substring: "OK"))
         XCTAssertTrue(stream.closed)
@@ -203,7 +173,7 @@ class ServerTests : XCTestCase {
     }
 
     func testLogError() {
-        Server.logError(error: ClientError.badRequest)
+        Server.log(error: ClientError.badRequest)
     }
 }
 

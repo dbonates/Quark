@@ -119,9 +119,9 @@ class MappableTests : XCTestCase {
             ]
         }
 
-        func construct<T : Configuration>(construct: (T) -> Void) throws {
+        func construct<Config : Configuration>(construct: (Config) -> Void) throws {
             let map = getValues()
-            try construct(T(map: map))
+            try construct(Config(map: map))
         }
 
         try construct { (configuration: AppConfiguration) in

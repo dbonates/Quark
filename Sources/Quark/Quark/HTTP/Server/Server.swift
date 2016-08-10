@@ -1,37 +1,88 @@
-public struct Server {
-    public let host: Host
+public struct Server : S4.Server {
+    public let tcpHost: Host
+    public let host: String
     public let port: Int
-    public let parser: S4.RequestParser.Type
-    public let serializer: S4.ResponseSerializer.Type
+    public let bufferSize: Int
     public let middleware: [Middleware]
     public let responder: Responder
     public let failure: (Error) -> Void
 
-    public let bufferSize: Int = 2048
+    public init(configuration: Map, middleware: [Middleware], responder: Responder, failure: @escaping (Error) -> Void) throws {
+        let host = configuration["host"]?.string ?? "127.0.0.1"
+        let port = configuration["port"]?.int ?? 8080
+        let bufferSize = configuration["bufferSize"]?.int ?? 2048
+        let backlog = configuration["backlog"]?.int ?? 128
+        let reusePort = configuration["reusePort"]?.bool ?? false
+        let enableLog = configuration["log"]?.bool ?? true
+        let enableSession = configuration["session"]?.bool ?? true
+        let enableContentNegotiation = configuration["contentNegotiation"]?.bool ?? true
 
-    public init(
-        host: Host,
-        port: Int,
-        parser: S4.RequestParser.Type,
-        serializer: S4.ResponseSerializer.Type,
-        middleware: [Middleware],
-        responder: Responder,
-        failure: @escaping (Error) -> Void
-        ) throws {
+        self.tcpHost = try TCPHost(
+            host: host,
+            port: port,
+            backlog: backlog,
+            reusePort: reusePort
+        )
+
+        var chain: [Middleware] = []
+
+        if enableLog {
+            chain.append(LogMiddleware())
+        }
+
+        if enableSession {
+            chain.append(SessionMiddleware())
+        }
+
+        if enableContentNegotiation {
+            chain.append(ContentNegotiationMiddleware(mediaTypes: [JSON.self, URLEncodedForm.self]))
+        }
+
+        chain.append(contentsOf: middleware)
+
         self.host = host
         self.port = port
-        self.parser = parser
-        self.serializer = serializer
-        self.middleware = middleware
+        self.bufferSize = bufferSize
+        self.middleware = chain
         self.responder = responder
         self.failure = failure
+    }
+
+    public init(configuration: Map, middleware: [Middleware] = [], responder representable: ResponderRepresentable, failure: @escaping (Error) -> Void = Server.log(error:)) throws {
+        try self.init(
+            configuration: configuration,
+            middleware: middleware,
+            responder: representable.responder,
+            failure: failure
+        )
+    }
+
+    public init(configuration: Map, middleware: [Middleware] = [], responder: Responder) throws {
+        try self.init(
+            configuration: configuration,
+            middleware: middleware,
+            responder: responder,
+            failure: Server.log(error:)
+        )
     }
 }
 
 extension Server {
+    public func start() throws {
+        printHeader()
+        while true {
+            let stream = try tcpHost.accept()
+            co { do { try self.process(stream: stream) } catch { self.failure(error) } }
+        }
+    }
+
+    public func startInBackground() {
+        co { do { try self.start() } catch { self.failure(error) } }
+    }
+
     public func process(stream: Stream) throws {
-        let parser = self.parser.init(stream: stream)
-        let serializer = self.serializer.init(stream: stream)
+        let parser = RequestParser(stream: stream)
+        let serializer = ResponseSerializer(stream: stream)
 
         while !stream.closed {
             do {
@@ -73,7 +124,7 @@ extension Server {
         }
     }
 
-    public static func logError(error: Error) -> Void {
+    public static func log(error: Error) -> Void {
         print("Error: \(error)")
     }
 
@@ -89,7 +140,7 @@ extension Server {
         header += "        `-.,|,.-`           -----------------------------\n"
         header += "\n"
         header += "================================================================================\n"
-        header += "Started HTTP server, listening on port \(port)."
+        header += "Started HTTP server at \(host), listening on port \(port)."
         print(header)
     }
 }

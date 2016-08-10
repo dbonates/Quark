@@ -1,10 +1,16 @@
-public protocol Responder : AsyncResponder {
+public protocol Responder : AsyncResponder, ResponderRepresentable {
     func respond(to request: Request) throws -> Response
 }
 
 extension Responder {
     public func respond(to request: Request, result: ((Void) throws -> Response) -> Void) {
         result { try self.respond(to: request) }
+    }
+}
+
+extension Responder {
+    public var responder: Responder {
+        return self
     }
 }
 

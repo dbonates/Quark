@@ -7,11 +7,7 @@ public struct PathParameterMiddleware : Middleware {
 
     public func respond(to request: Request, chainingTo next: Responder) throws -> Response {
         var request = request
-
-        for (key, value) in pathParameters {
-            request.pathParameters[key] = value
-        }
-
+        request.pathParameters = pathParameters
         return try next.respond(to: request)
     }
 }

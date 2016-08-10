@@ -62,6 +62,7 @@ public final class SessionMiddleware: Middleware {
 }
 
 extension Request {
+    // TODO: Add a Quark compiler flag and then make different versions Session/Session?
     public var session: Session {
         guard let session = storage[SessionMiddleware.cookieName] as? Session else {
             fatalError("SessionMiddleware should be applied to the chain. Quark guarantees it, so this error should never happen within Quark.")

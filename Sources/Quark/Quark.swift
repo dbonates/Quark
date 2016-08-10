@@ -17,19 +17,24 @@ extension QuarkError : CustomStringConvertible {
     }
 }
 
-private var configured = false
+var storedConfiguration: Map = nil
 
-public var configuration: Map = loadConfiguration() {
-    didSet {
-        if !configured {
-            do {
-                let file = try File(path: "/tmp/QuarkConfiguration", mode: .truncateWrite)
-                let serializer = JSONMapSerializer()
-                let data = try serializer.serialize(configuration)
-                try file.write(data)
-            } catch {
-                fatalError(String(describing: error))
-            }
+public var configuration: Map {
+    get {
+        if storedConfiguration == nil {
+            storedConfiguration = loadConfiguration()
+        }
+        return storedConfiguration
+    }
+
+    set(configuration) {
+        do {
+            let file = try File(path: "/tmp/QuarkConfiguration", mode: .truncateWrite)
+            let serializer = JSONMapSerializer()
+            let data = try serializer.serialize(configuration)
+            try file.write(data)
+        } catch {
+            fatalError(String(describing: error))
         }
     }
 }
@@ -45,7 +50,7 @@ private func loadConfiguration() -> Map {
     }
 }
 
-private func loadConfiguration(configurationFile: String, arguments: [String]) throws -> Map {
+func loadConfiguration(configurationFile: String, arguments: [String]) throws -> Map {
     let environmentVariables = load(environmentVariables: environment.variables)
     let commandLineArguments = try load(arguments: Array(arguments.dropFirst()))
 
@@ -78,7 +83,7 @@ private func load(configurationFile: String) throws -> [String: Map] {
     arguments += ["--driver-mode=swift"]
     arguments += ["-I", libraryDirectory, "-L", libraryDirectory, "-l\(moduleName)"]
 
-#if os(OSX)
+#if os(macOS)
     arguments += ["-target", "x86_64-apple-macosx10.10"]
 #endif
 
@@ -95,7 +100,6 @@ private func load(configurationFile: String) throws -> [String: Map] {
     let parser = JSONMapParser()
     let data = try file.readAll()
     let configuration = try parser.parse(data).asDictionary()
-    configured = true
     return configuration
 }
 

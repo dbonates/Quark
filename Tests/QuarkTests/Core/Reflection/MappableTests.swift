@@ -13,12 +13,12 @@ struct PhoneNumber : Mappable {
     var type: String
 }
 
-struct ServerConfiguration : Configuration {
+struct ServerConfiguration : Mappable {
     let host: String
     let port: Int
 }
 
-struct AppConfiguration : Configuration {
+struct AppConfiguration : Mappable {
     let server: ServerConfiguration
 }
 
@@ -119,7 +119,7 @@ class MappableTests : XCTestCase {
             ]
         }
 
-        func construct<Config : Configuration>(construct: (Config) -> Void) throws {
+        func construct<Config : Mappable>(construct: (Config) -> Void) throws {
             let map = getValues()
             try construct(Config(map: map))
         }

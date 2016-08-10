@@ -3,26 +3,10 @@ import XCTest
 
 class QuarkTests : XCTestCase {
     func testConfiguration() throws {
-        var called = false
         let file = try File(path: "/tmp/TestConfiguration", mode: .truncateWrite)
         try file.write("import Quark\n\nconfiguration = [\"server\": [\"log\": true]]")
-        Quark.configure(configurationFile: "/tmp/TestConfiguration", arguments: []) { (configuration: Map) in
-            XCTAssertEqual(configuration["server", "log"], true)
-            called = true
-        }
-        XCTAssertTrue(called)
-    }
-
-    func testConfigurationFailure() throws {
-        var called = false
-        let file = try File(path: "/tmp/TestConfiguration", mode: .truncateWrite)
-        try file.write("import Quark\n\nconfiguration = [\"server\": [\"log\": true]]")
-        configure(configurationFile: "/tmp/TestConfiguration", arguments: []) { (configuration: Map) in
-            XCTAssertEqual(configuration["server", "log"], true)
-            called = true
-            throw ServerError.internalServerError
-        }
-        XCTAssertTrue(called)
+        let configuration = try loadConfiguration(configurationFile: "/tmp/TestConfiguration", arguments: [])
+        XCTAssertEqual(configuration["server", "log"], true)
     }
 
     func testQuarkErrorDescription() throws {
@@ -76,7 +60,7 @@ class QuarkTests : XCTestCase {
 
     func testLoadEnvironmentVariables() throws {
         let variables = ["FOO_BAR": "fuu", "_": "baz"]
-        let parsed = try Quark.load(environmentVariables: variables)
+        let parsed = Quark.load(environmentVariables: variables)
         XCTAssertEqual(parsed, ["fooBar": "fuu", "_": "baz"])
     }
 
@@ -120,7 +104,6 @@ extension QuarkTests {
     static var allTests : [(String, (QuarkTests) -> () throws -> Void)] {
         return [
             ("testConfiguration", testConfiguration),
-            ("testConfigurationFailure", testConfigurationFailure),
             ("testQuarkErrorDescription", testQuarkErrorDescription),
             ("testConfigurationProperty", testConfigurationProperty),
             ("testLoadCommandLineArguments", testLoadCommandLineArguments),

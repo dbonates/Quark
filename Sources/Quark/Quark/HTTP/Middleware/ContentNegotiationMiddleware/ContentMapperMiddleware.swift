@@ -1,6 +1,6 @@
 extension MapInitializable {
     public static var key: String {
-        return String(reflecting: self)
+        return String(reflecting: type(of: self))
     }
 }
 

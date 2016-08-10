@@ -13,6 +13,6 @@ script:
   - swift test
   - swift package generate-xcodeproj
   - set -o pipefail
-  - WORKING_DIRECTORY=$(PWD) xcodebuild -toolchain org.swift.3020160804a -project Quark.xcodeproj -scheme Quark -sdk macosx10.12 -destination arch=x86_64 -configuration Debug -enableCodeCoverage YES test | xcpretty
+  - WORKING_DIRECTORY=$(PWD) xcodebuild -toolchain org.swift.3020160807a -project Quark.xcodeproj -scheme Quark -sdk macosx10.12 -destination arch=x86_64 -configuration Debug -enableCodeCoverage YES test | xcpretty
 after_success:
   - bash <(curl -s https://codecov.io/bash)

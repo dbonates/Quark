@@ -26,7 +26,7 @@ XCTMain([
     testCase(JSONTests.allTests),
     testCase(LoggerTests.allTests),
     testCase(InternalTests.allTests),
-    testCase(MappableTests.allTests),
+    testCase(MapConvertibleTests.allTests),
     testCase(PerformanceTests.allTests),
     testCase(PublicTests.allTests),
     testCase(StringTests.allTests),

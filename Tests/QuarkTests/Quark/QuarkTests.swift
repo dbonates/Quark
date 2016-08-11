@@ -10,7 +10,6 @@ class QuarkTests : XCTestCase {
     }
 
     func testQuarkErrorDescription() throws {
-        XCTAssertEqual(String(describing: QuarkError.invalidConfiguration(description: "foo")), "foo")
         XCTAssertEqual(String(describing: QuarkError.invalidArgument(description: "foo")), "foo")
     }
 

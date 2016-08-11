@@ -10,7 +10,6 @@ public protocol Resource : RouterRepresentable {
     associatedtype UpdateInput : MapInitializable = Model
 
     var staticFilesPath: String { get }
-    var fileType: C7.File.Type { get }
     var middleware: [Middleware] { get }
 
     func list(request: Request) throws -> Response
@@ -21,15 +20,6 @@ public protocol Resource : RouterRepresentable {
 
     func recover(error: Error) throws -> Response
     func custom(routes: ResourceRoutes)
-}
-
-// Warning: This is here due to a compiler bug.
-// This will have to be deleted once we split Venice from Quark
-
-public extension Resource {
-    var fileType: C7.File.Type {
-        return File.self
-    }
 }
 
 public extension Resource {
@@ -82,13 +72,13 @@ public extension Resource {
 
 extension Resource {
     public var router: BasicRouter {
-        let routes = ResourceRoutes(staticFilesPath: staticFilesPath, fileType: fileType)
+        let routes = ResourceRoutes(staticFilesPath: staticFilesPath)
         custom(routes: routes)
         routes.list(respond: list)
         routes.create(respond: create)
         routes.detail(respond: detail)
         routes.update(respond: update)
         routes.destroy(respond: destroy)
-        return BasicRouter(recover: recover, middleware: middleware, routes: routes)
+        return BasicRouter(middleware: [RecoveryMiddleware(recover)] + middleware, routes: routes)
     }
 }

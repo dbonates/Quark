@@ -1,5 +1,16 @@
 import CLibvenice
 
+public enum FileMode {
+    case read
+    case createWrite
+    case truncateWrite
+    case appendWrite
+    case readWrite
+    case createReadWrite
+    case truncateReadWrite
+    case appendReadWrite
+}
+
 extension FileMode {
     var value: Int32 {
         switch self {
@@ -15,7 +26,7 @@ extension FileMode {
     }
 }
 
-public final class File : C7.File {
+public final class File : Stream {
     fileprivate var file: mfile?
     public fileprivate(set) var closed = false
     public fileprivate(set) var path: String? = nil
@@ -61,7 +72,7 @@ public final class File : C7.File {
         self.file = file
     }
 
-    public convenience init(path: String, mode: FileMode) throws {
+    public convenience init(path: String, mode: FileMode = .read) throws {
         let file = fileopen(path, mode.value, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
         try ensureLastOperationSucceeded()
         self.init(file: file!)
@@ -107,7 +118,7 @@ extension File {
         return Data(data.prefix(received))
     }
 
-    public func read(_ byteCount: Int, deadline: Double) throws -> Data {
+    public func read(_ byteCount: Int, deadline: Double = .never) throws -> Data {
         try ensureFileIsOpen()
 
         var data = Data.buffer(with: byteCount)
@@ -121,7 +132,7 @@ extension File {
         return receivedData
     }
 
-    public func readAll(deadline: Double) throws -> Data {
+    public func readAll(deadline: Double = .never) throws -> Data {
         var data = Data()
 
         while true {

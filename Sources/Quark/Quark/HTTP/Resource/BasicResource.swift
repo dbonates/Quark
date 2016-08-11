@@ -16,28 +16,25 @@ public struct BasicResource {
     }
 
     init(
-        recover: Recover,
         middleware: [Middleware],
         routes: ResourceRoutes
         ) {
         self.init(
-            middleware: [RecoveryMiddleware(recover)] + middleware,
+            middleware: middleware,
             routes: routes.routes,
             fallback: routes.fallback
         )
     }
 
     public init(
-        recover: Recover = RecoveryMiddleware.recover,
         staticFilesPath: String = "Public",
-        fileType: C7.File.Type,
         middleware: [Middleware] = [],
         routes: (ResourceRoutes) -> Void
         ) {
-        let r = ResourceRoutes(staticFilesPath: staticFilesPath, fileType: fileType)
+        let r = ResourceRoutes(staticFilesPath: staticFilesPath)
         routes(r)
         self.init(
-            middleware: [RecoveryMiddleware(recover)] + middleware,
+            middleware: middleware,
             routes: r.routes,
             fallback: r.fallback
         )

@@ -1,8 +1,8 @@
 extension Response {
-    public init(status: Status = .ok, headers: Headers = [:], filePath: String, fileType: C7.File.Type) throws {
+    public init(status: Status = .ok, headers: Headers = [:], filePath: String) throws {
         do {
             var filePath = filePath
-            let file: C7.File
+            let file: File
 
             // This logic should not be here. It should be defined before calling the initializer.
             // Also use some String extension like String.fileExtension?
@@ -11,9 +11,9 @@ extension Response {
             }
 
             do {
-                file = try fileType.init(path: filePath, mode: .read)
+                file = try File(path: filePath, mode: .read)
             } catch {
-                file = try fileType.init(path: filePath + "html", mode: .read)
+                file = try File(path: filePath + "html", mode: .read)
             }
 
             self.init(status: status, headers: headers, body: file)

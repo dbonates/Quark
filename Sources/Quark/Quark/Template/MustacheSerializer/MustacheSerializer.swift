@@ -41,15 +41,13 @@ extension Map : MustacheBoxable {
 
 public struct MustacheSerializer : MapSerializer {
     public let templatePath: String
-    let fileType: C7.File.Type
 
-    public init(templatePath: String, fileType: C7.File.Type) {
+    public init(templatePath: String) {
         self.templatePath = templatePath
-        self.fileType = fileType
     }
 
     public func serialize(_ map: Map) throws -> Data {
-        let templateFile = try fileType.init(path: templatePath)
+        let templateFile = try File(path: templatePath)
 
         guard let templateString = try? String(data: templateFile.readAll()) else {
             throw MustacheSerializerError.unsupportedTemplateEncoding

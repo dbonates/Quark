@@ -1,13 +1,11 @@
 public class Routes {
     public let staticFilesPath: String
-    public let fileType: C7.File.Type
     public var routes: [Route] = []
 
-    public lazy var fallback: Responder = FileResponder(path: self.staticFilesPath, fileType: self.fileType)
+    public lazy var fallback: Responder = FileResponder(path: self.staticFilesPath)
 
-    public init(staticFilesPath: String, fileType: C7.File.Type) {
+    public init(staticFilesPath: String) {
         self.staticFilesPath = staticFilesPath
-        self.fileType = fileType
     }
 }
 

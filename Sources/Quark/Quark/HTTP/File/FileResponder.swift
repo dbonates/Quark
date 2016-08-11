@@ -1,12 +1,10 @@
 public struct FileResponder : Responder {
     let path: String
     let headers: Headers
-    let fileType: C7.File.Type
 
-    public init(path: String, headers: Headers = [:], fileType: C7.File.Type) {
+    public init(path: String, headers: Headers = [:]) {
         self.path = path
         self.headers = headers
-        self.fileType = fileType
     }
 
     public func respond(to request: Request) throws -> Response {
@@ -18,6 +16,6 @@ public struct FileResponder : Responder {
             throw ServerError.internalServerError
         }
 
-        return try Response(status: .ok, headers: headers, filePath: self.path + filepath, fileType: fileType)
+        return try Response(status: .ok, headers: headers, filePath: self.path + filepath)
     }
 }

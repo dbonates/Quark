@@ -1,19 +1,9 @@
 public protocol Router : RouterRepresentable {
     var staticFilesPath: String { get }
-    var fileType: C7.File.Type { get }
     var middleware: [Middleware] { get }
 
     func recover(error: Error) throws -> Response
     func custom(routes: Routes)
-}
-
-// Warning: This is here due to a compiler bug.
-// This will have to be deleted once we split Venice from Quark
-
-extension Router {
-    public var fileType: C7.File.Type {
-        return File.self
-    }
 }
 
 extension Router {
@@ -34,8 +24,8 @@ extension Router {
 
 extension Router {
     public var router: BasicRouter {
-        let routes = Routes(staticFilesPath: staticFilesPath, fileType: fileType)
+        let routes = Routes(staticFilesPath: staticFilesPath)
         custom(routes: routes)
-        return BasicRouter(recover: recover, middleware: middleware, routes: routes)
+        return BasicRouter(middleware: [RecoveryMiddleware(recover)] + middleware, routes: routes)
     }
 }

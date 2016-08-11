@@ -5,7 +5,7 @@ class MustacheSerializerTests : XCTestCase {
     func testSerialization() throws {
         let templateFile = try File(path: "/tmp/ZewoTemplate", mode: .truncateWrite)
         try templateFile.write("{{null}}\n{{bool}}\n{{double}}\n{{int}}\n{{string}}\n{{data}}\n{{#array}}{{.}}{{/array}}\n{{#dictionary}}{{foo}}{{/dictionary}}")
-        let serializer = MustacheSerializer(templatePath: "/tmp/ZewoTemplate", fileType: File.self)
+        let serializer = MustacheSerializer(templatePath: "/tmp/ZewoTemplate")
         let templateData: Map = [
             "null": nil,
             "bool": true,
@@ -23,7 +23,7 @@ class MustacheSerializerTests : XCTestCase {
     func testInvalidEncoding() throws {
         let templateFile = try File(path: "/tmp/ZewoTemplate", mode: .truncateWrite)
         try templateFile.write([0xFF])
-        let serializer = MustacheSerializer(templatePath: "/tmp/ZewoTemplate", fileType: File.self)
+        let serializer = MustacheSerializer(templatePath: "/tmp/ZewoTemplate")
         XCTAssertThrowsError(try serializer.serialize([]))
     }
 }

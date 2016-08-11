@@ -79,30 +79,6 @@ extension Map {
     }
 }
 
-// MARK: Type Inference
-
-extension Map {
-    public static func infer<T: MapRepresentable>(_ value: T?) -> Map {
-        return Map(value)
-    }
-
-    public static func infer<T: MapRepresentable>(_ values: [T]?) -> Map {
-        return Map(values)
-    }
-
-    public static func infer<T: MapRepresentable>(_ values: [T?]?) -> Map {
-        return Map(values)
-    }
-
-    public static func infer<T: MapRepresentable>(_ values: [String: T]?) -> Map {
-        return Map(values)
-    }
-
-    public static func infer<T: MapRepresentable>(_ values: [String: T?]?) -> Map {
-        return Map(values)
-    }
-}
-
 // MARK: is<Type>
 
 extension Map {

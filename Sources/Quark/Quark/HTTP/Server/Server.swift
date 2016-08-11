@@ -1,27 +1,31 @@
 public struct Server : S4.Server {
     public let tcpHost: Host
-    public let host: String
-    public let port: Int
-    public let bufferSize: Int
     public let middleware: [Middleware]
     public let responder: Responder
     public let failure: (Error) -> Void
 
+    public let host: String
+    public let port: Int
+    public let bufferSize: Int
+
     public init(configuration: Map, middleware: [Middleware], responder: Responder, failure: @escaping (Error) -> Void) throws {
-        let host = configuration["host"]?.string ?? "127.0.0.1"
-        let port = configuration["port"]?.int ?? 8080
+        let host = configuration["tcp", "host"]?.string ?? "0.0.0.0"
+        let port = configuration["tcp", "port"]?.int ?? 8080
+        let backlog = configuration["tcp", "host"]?.int ?? 128
+        let reusePort = configuration["tcp", "reusePort"]?.bool ?? false
+
         let bufferSize = configuration["bufferSize"]?.int ?? 2048
-        let backlog = configuration["backlog"]?.int ?? 128
-        let reusePort = configuration["reusePort"]?.bool ?? false
         let enableLog = configuration["log"]?.bool ?? true
         let enableSession = configuration["session"]?.bool ?? true
         let enableContentNegotiation = configuration["contentNegotiation"]?.bool ?? true
 
         self.tcpHost = try TCPHost(
-            host: host,
-            port: port,
-            backlog: backlog,
-            reusePort: reusePort
+            configuration: [
+                "host": Map(host),
+                "port": Map(port),
+                "backlog": Map(backlog),
+                "reusePort": Map(reusePort),
+            ]
         )
 
         var chain: [Middleware] = []

@@ -6,4 +6,3 @@ let app = Application(store: store)
 let router = MainRouter(app: app)
 let server = try Server(configuration: configuration["server"] ?? nil, responder: router)
 try server.start()
- 

@@ -58,7 +58,7 @@ class ServerTests : XCTestCase {
             called = true
             (stream as! Drain).closed = false
             XCTAssertEqual(request.method, .get)
-            throw ClientError.badRequest
+            throw HTTPError.badRequest
         }
 
         let server = try Server(
@@ -173,7 +173,7 @@ class ServerTests : XCTestCase {
     }
 
     func testLogError() {
-        Server.log(error: ClientError.badRequest)
+        Server.log(error: HTTPError.badRequest)
     }
 }
 

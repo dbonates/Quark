@@ -16,11 +16,9 @@ public struct RecoveryMiddleware : Middleware {
     }
 
     public static func recover(error: Error) throws -> Response {
-        switch error {
-        case let error as HTTPError:
-            return Response(status: error.status)
-        default:
+        guard let representable = error as? ResponseRepresentable else {
             throw error
         }
+        return representable.response
     }
 }

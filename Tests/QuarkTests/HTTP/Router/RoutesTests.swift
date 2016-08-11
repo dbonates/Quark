@@ -1006,7 +1006,7 @@ class RoutesTests : XCTestCase {
                 return Response(status: .badRequest)
             default:
                 XCTFail()
-                throw ServerError.internalServerError
+                throw HTTPError.internalServerError
             }
         }
 

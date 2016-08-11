@@ -16,7 +16,7 @@ public final class Route : Responder {
     }
 
     public static let defaultFallback = BasicResponder { _ in
-        throw ClientError.methodNotAllowed
+        throw HTTPError.methodNotAllowed
     }
 
     public func respond(to request: Request) throws -> Response {

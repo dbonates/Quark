@@ -35,3 +35,60 @@ extension Request : RequestConvertible {
         return self
     }
 }
+
+extension Request {
+    public init(method: Method = .get, uri: URI = URI(path: "/"), headers: Headers = [:], body: Body) {
+        self.init(
+            method: method,
+            uri: uri,
+            version: Version(major: 1, minor: 1),
+            headers: headers,
+            body: body
+        )
+
+        switch body {
+        case let .buffer(body):
+            self.headers["Content-Length"] = body.count.description
+        default:
+            self.headers["Transfer-Encoding"] = "chunked"
+        }
+    }
+
+    public init(method: Method = .get, uri: URI = URI(path: "/"), headers: Headers = [:], body: Data = []) {
+        self.init(
+            method: method,
+            uri: uri,
+            headers: headers,
+            body: .buffer(body)
+        )
+    }
+
+    public init(method: Method = .get, uri: URI = URI(path: "/"), headers: Headers = [:], body: InputStream) {
+        self.init(
+            method: method,
+            uri: uri,
+            headers: headers,
+            body: .reader(body)
+        )
+    }
+
+    public init(method: Method = .get, uri: URI = URI(path: "/"), headers: Headers = [:], body: @escaping (C7.OutputStream) throws -> Void) {
+        self.init(
+            method: method,
+            uri: uri,
+            headers: headers,
+            body: .writer(body)
+        )
+    }
+}
+
+extension Request {
+    public init(method: Method = .get, uri: URI = URI(path: "/"), headers: Headers = [:], body: DataRepresentable) {
+        self.init(
+            method: method,
+            uri: uri,
+            headers: headers,
+            body: body.data
+        )
+    }
+}

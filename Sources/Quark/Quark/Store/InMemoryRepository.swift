@@ -20,7 +20,7 @@ public final class InMemoryRepository<Model> : RepositoryProtocol {
 
     public func fetch(id: String) throws -> Record<Model> {
         guard let model = store[id] else {
-            throw ClientError.notFound
+            throw HTTPError.notFound
         }
         return Record(id: id, model: model)
     }
@@ -33,7 +33,7 @@ public final class InMemoryRepository<Model> : RepositoryProtocol {
 
     public func update(id: String, model: Model) throws -> Record<Model> {
         if store[id] == nil {
-            throw ClientError.notFound
+            throw HTTPError.notFound
         }
         let element = Record(id: id, model: model)
         store[id] = model
@@ -42,7 +42,7 @@ public final class InMemoryRepository<Model> : RepositoryProtocol {
 
     public func remove(id: String) throws -> Record<Model> {
         guard let model = store[id] else {
-            throw ClientError.notFound
+            throw HTTPError.notFound
         }
         store[id] = nil
         return Record(id: id, model: model)

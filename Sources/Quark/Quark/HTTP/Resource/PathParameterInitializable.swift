@@ -16,7 +16,7 @@ extension String : PathParameterConvertible {
 extension Int : PathParameterConvertible {
     public init(pathParameter: String) throws {
         guard let int = Int(pathParameter) else {
-            throw ClientError.badRequest
+            throw HTTPError.badRequest
         }
         self.init(int)
     }

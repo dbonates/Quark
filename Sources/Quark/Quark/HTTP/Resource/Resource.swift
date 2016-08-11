@@ -34,31 +34,31 @@ public extension Resource {
 
 public extension Resource {
     func list(request: Request) throws -> Response {
-        throw ClientError.notFound
+        throw HTTPError.notFound
     }
 }
 
 public extension Resource {
     func create(request: Request, content: CreateInput) throws -> Response {
-        throw ClientError.notFound
+        throw HTTPError.notFound
     }
 }
 
 public extension Resource {
     func detail(request: Request, id: DetailID) throws -> Response {
-        throw ClientError.notFound
+        throw HTTPError.notFound
     }
 }
 
 public extension Resource {
     func update(request: Request, id: UpdateID, content: UpdateInput) throws -> Response {
-        throw ClientError.notFound
+        throw HTTPError.notFound
     }
 }
 
 public extension Resource {
     func destroy(request: Request, id: DestroyID) throws -> Response {
-        throw ClientError.notFound
+        throw HTTPError.notFound
     }
 }
 

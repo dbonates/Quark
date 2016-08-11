@@ -9,11 +9,11 @@ public struct FileResponder : Responder {
 
     public func respond(to request: Request) throws -> Response {
         if request.method != .get {
-            throw ClientError.methodNotAllowed
+            throw HTTPError.methodNotAllowed
         }
 
         guard let filepath = request.path else {
-            throw ServerError.internalServerError
+            throw HTTPError.internalServerError
         }
 
         return try Response(status: .ok, headers: headers, filePath: self.path + filepath)

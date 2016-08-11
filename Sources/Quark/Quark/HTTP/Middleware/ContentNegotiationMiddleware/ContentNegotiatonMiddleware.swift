@@ -108,7 +108,7 @@ public struct ContentNegotiationMiddleware : Middleware {
                 let (_, content) = try parse(body, mediaType: contentType)
                 request.content = content
             } catch ContentNegotiationMiddlewareError.noSuitableParser {
-                throw ClientError.unsupportedMediaType
+                throw HTTPError.unsupportedMediaType
             }
         }
 
@@ -123,7 +123,7 @@ public struct ContentNegotiationMiddleware : Middleware {
                 response.body = .buffer(body)
                 response.contentLength = body.count
             } catch ContentNegotiationMiddlewareError.noSuitableSerializer {
-                throw ClientError.notAcceptable
+                throw HTTPError.notAcceptable
             }
         }
 

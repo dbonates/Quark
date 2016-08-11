@@ -979,7 +979,7 @@ extension Routes {
         let contentMapper = ContentMapperMiddleware(mappingTo: T.self)
         let responder = BasicResponder { request in
             guard let content = request.storage[T.key] as? T else {
-                throw ClientError.badRequest
+                throw HTTPError.badRequest
             }
             return try respond(request, content)
         }
@@ -1005,7 +1005,7 @@ extension Routes {
             let a = try A(pathParameter: parameters[0])
 
             guard let content = request.storage[T.key] as? T else {
-                throw ClientError.badRequest
+                throw HTTPError.badRequest
             }
 
             return try respond(request, a, content)
@@ -1034,7 +1034,7 @@ extension Routes {
             let a = try A(pathParameter: parameters[0])
             let b = try B(pathParameter: parameters[1])
             guard let content = request.storage[T.key] as? T else {
-                throw ClientError.badRequest
+                throw HTTPError.badRequest
             }
 
             return try respond(request, a, b, content)
@@ -1066,7 +1066,7 @@ extension Routes {
             let c = try C(pathParameter: parameters[2])
 
             guard let content = request.storage[T.key] as? T else {
-                throw ClientError.badRequest
+                throw HTTPError.badRequest
             }
 
             return try respond(request, a, b, c, content)
@@ -1100,7 +1100,7 @@ extension Routes {
             let d = try D(pathParameter: parameters[3])
 
             guard let content = request.storage[T.key] as? T else {
-                throw ClientError.badRequest
+                throw HTTPError.badRequest
             }
 
             return try respond(request, a, b, c, d, content)
@@ -1111,7 +1111,7 @@ extension Routes {
 
     private func parseParameters(keys: [String], pathParameters: [String: String]) throws -> [String] {
         guard keys.count == pathParameters.count else {
-            throw ServerError.internalServerError
+            throw HTTPError.internalServerError
         }
 
         return keys.flatMap({ pathParameters[$0] })

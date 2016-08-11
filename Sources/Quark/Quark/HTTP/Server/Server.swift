@@ -120,12 +120,11 @@ extension Server {
     }
 
     private static func recover(error: Error) -> (Response, Error?) {
-        switch error {
-        case let error as HTTPError:
-            return (Response(status: error.status), nil)
-        default:
-            return (Response(status: .internalServerError), error)
+        guard let representable = error as? ResponseRepresentable else {
+            let body = Data(String(describing: error))
+            return (Response(status: .internalServerError, body: body), error)
         }
+        return (representable.response, nil)
     }
 
     public static func log(error: Error) -> Void {

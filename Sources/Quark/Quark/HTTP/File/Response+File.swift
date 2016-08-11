@@ -22,7 +22,7 @@ extension Response {
                 self.contentType = mediaType
             }
         } catch {
-            throw ClientError.notFound
+            throw HTTPError.notFound
         }
     }
 }

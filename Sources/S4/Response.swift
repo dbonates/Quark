@@ -34,3 +34,56 @@ extension Response : ResponseConvertible {
         return self
     }
 }
+
+extension Response {
+    public init(status: Status = .ok, headers: Headers = [:], body: Body) {
+        self.init(
+            version: Version(major: 1, minor: 1),
+            status: status,
+            headers: headers,
+            cookieHeaders: [],
+            body: body
+        )
+
+        switch body {
+        case let .buffer(body):
+            self.headers["Content-Length"] = body.count.description
+        default:
+            self.headers["Transfer-Encoding"] = "chunked"
+        }
+    }
+
+    public init(status: Status = .ok, headers: Headers = [:], body: Data = []) {
+        self.init(
+            status: status,
+            headers: headers,
+            body: .buffer(body)
+        )
+    }
+
+    public init(status: Status = .ok, headers: Headers = [:], body: InputStream) {
+        self.init(
+            status: status,
+            headers: headers,
+            body: .reader(body)
+        )
+    }
+
+    public init(status: Status = .ok, headers: Headers = [:], body: @escaping (C7.OutputStream) throws -> Void) {
+        self.init(
+            status: status,
+            headers: headers,
+            body: .writer(body)
+        )
+    }
+}
+
+extension Response {
+    public init(status: Status = .ok, headers: Headers = [:], body: DataConvertible) {
+        self.init(
+            status: status,
+            headers: headers,
+            body: body.data
+        )
+    }
+}

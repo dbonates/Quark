@@ -4,21 +4,14 @@ public struct BasicRouter {
     public let fallback: Responder
     public let matcher: TrieRouteMatcher
 
-    init(
-        middleware: [Middleware],
-        routes: [Route],
-        fallback: Responder
-        ) {
+    init(middleware: [Middleware], routes: [Route], fallback: Responder) {
         self.middleware = middleware
         self.routes = routes
         self.fallback = fallback
         self.matcher = TrieRouteMatcher(routes: routes)
     }
 
-    init(
-        middleware: [Middleware],
-        routes: Routes
-        ) {
+    init(middleware: [Middleware], routes: Routes) {
         self.init(
             middleware: middleware,
             routes: routes.routes,
@@ -26,11 +19,7 @@ public struct BasicRouter {
         )
     }
 
-    public init(
-        staticFilesPath: String = "Public",
-        middleware: [Middleware] = [],
-        routes: (Routes) -> Void
-        ) {
+    public init(staticFilesPath: String = "Public", middleware: [Middleware] = [], routes: (Routes) -> Void) {
         let r = Routes(staticFilesPath: staticFilesPath)
         routes(r)
         self.init(

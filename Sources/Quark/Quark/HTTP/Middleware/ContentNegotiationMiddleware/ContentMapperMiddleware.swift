@@ -22,7 +22,7 @@ public struct ContentMapperMiddleware : Middleware {
             let target = try type.init(map: content)
             request.storage[type.key] = target
         } catch MapError.incompatibleType {
-            throw ClientError.badRequest
+            throw HTTPError.badRequest
         }
 
         return try next.respond(to: request)

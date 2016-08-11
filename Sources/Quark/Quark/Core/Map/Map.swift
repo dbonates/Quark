@@ -576,24 +576,6 @@ extension Map: MapProtocol {
     
 }
 
-extension Mappable {
-    
-    public init(from map: Map) throws {
-        let mapper = Mapper(map)
-        try self.init(mapper: mapper)
-    }
-    
-}
-
-extension MappableWithContext {
-    
-    public init(from map: Map, withContext context: Context) throws {
-        let contextualMapper = ContextualMapper(map, context: context)
-        try self.init(mapper: contextualMapper)
-    }
-    
-}
-
 // MARK: Subscripts
 
 extension Map {

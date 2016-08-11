@@ -1,11 +1,12 @@
 import XCTest
 @testable import Quark
+import C7
 
 class MapperTests: XCTestCase {
     
     func testBasicTypesMappings() {
         
-        struct Test: Mappable {
+        struct Test: Mappable, MapInitializable {
             let int: Int
             let string: String
             let double: Double
@@ -20,11 +21,13 @@ class MapperTests: XCTestCase {
         }
         
         let primitiveDict: Map = ["int": 5, "string": "String", "double": 7.8, "bool": true]
-        let test = try! Test(from: primitiveDict)
+        let test = try! Test(map: primitiveDict)
         XCTAssertEqual(test.int, 5)
         XCTAssertEqual(test.string, "String")
         XCTAssertEqual(test.double, 7.8)
         XCTAssertEqual(test.bool, true)
+        
+        
         
     }
     
@@ -295,6 +298,48 @@ class MapperTests: XCTestCase {
         let deepDict: Map = ["deeper": ["stillDeeper": ["close": ["gotcha": 15]]]]
         let deep = try! DeepTest(from: deepDict)
         XCTAssertEqual(deep.hiddenFar, 15)
+        
+    }
+    
+    func testExhaustiveJSONMapping() {
+        
+        struct JSONTest: Mappable {
+            
+            let null: Int?
+            let int: Int
+            let double: Double
+            let uint: UInt
+            let bool: Bool
+            let string: String
+            let jsonArray: [JSON]
+            let jsonObject: [String: JSON]
+            let strings: [String]
+            
+            init<Map : MapProtocol>(mapper: Mapper<Map>) throws {
+                self.null = try? mapper.map(from: "null")
+                self.int = try mapper.map(from: "int", 0)
+                self.double = try mapper.map(from: "double")
+                self.uint = try mapper.map(from: "uint")
+                self.bool = try mapper.map(from: "bool")
+                self.string = try mapper.map(from: "string")
+                self.jsonArray = try mapper.map(from: "array")
+                self.jsonObject = try mapper.map()
+                self.strings = try mapper.map(arrayFrom: "strings")
+            }
+            
+        }
+        
+        let json: JSON = .object([
+            "null": .null,
+            "int": .array([.number(.integer(15))]),
+            "double": .number(.double(5.0)),
+            "uint": .number(.unsignedInteger(10)),
+            "bool": .boolean(false),
+            "string": .string("Quark"),
+            "array": .array([.string("UA")]),
+            "strings": .array([.string("JP"), .string("UA"), .string("GB")])
+        ])
+        _ = try! JSONTest(from: json)
         
     }
     

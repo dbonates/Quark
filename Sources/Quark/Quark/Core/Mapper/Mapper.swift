@@ -1,6 +1,6 @@
 public enum MapperError: Error {
     case noValue(forIndexPath: [IndexPathElement])
-    case wrongType
+    case wrongType(String)
     case cannotInitializeFromRawValue
     case cannotRepresentAsArray
 }
@@ -9,14 +9,14 @@ public protocol MapperProtocol {
     
     associatedtype Map: MapProtocol
     
-    var map: Map { get }
+    var highMap: Map { get }
     
 }
 
 extension MapperProtocol {
     
     fileprivate func dive(to indexPath: [IndexPathElement]) throws -> Map {
-        if let value = map[indexPath] {
+        if let value = highMap[indexPath] {
             return value
         } else {
             throw MapperError.noValue(forIndexPath: indexPath)
@@ -27,7 +27,8 @@ extension MapperProtocol {
         if let value: T = map.get() {
             return value
         } else {
-            throw MapperError.wrongType
+            let type = T.self
+            throw MapperError.wrongType(String(describing: type))
         }
     }
     
@@ -55,12 +56,12 @@ extension MapperProtocol {
     
     public func map<T: Mappable>(from indexPath: IndexPathElement...) throws -> T {
         let leveled = try dive(to: indexPath)
-        return try T(mapper: Mapper(leveled))
+        return try T(mapper: Mapper(of: leveled))
     }
     
     public func map<T: MappableWithContext>(from indexPath: IndexPathElement..., usingContext context: T.Context) throws -> T {
         let leveled = try dive(to: indexPath)
-        return try T(mapper: ContextualMapper(leveled, context: context))
+        return try T(mapper: ContextualMapper(of: leveled, context: context))
     }
     
     public func map<T: RawRepresentable>(from indexPath: IndexPathElement...) throws -> T {
@@ -77,13 +78,13 @@ extension MapperProtocol {
     public func map<T: Mappable>(arrayFrom indexPath: IndexPathElement...) throws -> [T] {
         let leveled = try dive(to: indexPath)
         let array = try self.array(from: leveled)
-        return try array.map({ try T(mapper: Mapper($0)) })
+        return try array.map({ try T(mapper: Mapper(of: $0)) })
     }
     
     public func map<T: MappableWithContext>(arrayFrom indexPath: IndexPathElement..., usingContext context: T.Context) throws -> [T] {
         let leveled = try dive(to: indexPath)
         let array = try self.array(from: leveled)
-        return try array.map({ try T(mapper: ContextualMapper($0, context: context)) })
+        return try array.map({ try T(mapper: ContextualMapper(of: $0, context: context)) })
     }
     
     public func map<T: RawRepresentable>(arrayFrom indexPath: IndexPathElement...) throws -> [T] {
@@ -97,35 +98,35 @@ extension MapperProtocol {
 
 public struct Mapper<Map: MapProtocol>: MapperProtocol {
     
-    public let map: Map
+    public let highMap: Map
     
-    public init(_ map: Map) {
-        self.map = map
+    public init(of map: Map) {
+        self.highMap = map
     }
     
 }
 
 public struct ContextualMapper<Map: MapProtocol, Context>: MapperProtocol {
     
-    public let map: Map
+    public let highMap: Map
     public let context: Context?
     
-    public init(_ map: Map, context: Context?) {
-        self.map = map
+    public init(of map: Map, context: Context?) {
+        self.highMap = map
         self.context = context
     }
     
     public func map<T: MappableWithContext>(withContextFrom indexPath: IndexPathElement...) throws -> T
         where T.Context == Context {
         let leveled = try dive(to: indexPath)
-        return try T(mapper: ContextualMapper(leveled, context: context))
+        return try T(mapper: ContextualMapper(of: leveled, context: context))
     }
     
     public func map<T: MappableWithContext>(arrayWithContextFrom indexPath: IndexPathElement...) throws -> [T]
         where T.Context == Context {
         let leveled = try dive(to: indexPath)
         let array = try self.array(from: leveled)
-        return try array.map({ try T(mapper: ContextualMapper($0, context: self.context)) })
+        return try array.map({ try T(mapper: ContextualMapper(of: $0, context: self.context)) })
     }
     
 }

@@ -1,7 +1,7 @@
 import C7
 
 extension JSON: MapProtocol {
-    
+
     public subscript(indexPath: IndexPathElement) -> JSON? {
         get {
             switch indexPath.indexPathValue {
@@ -14,7 +14,7 @@ extension JSON: MapProtocol {
             }
         }
     }
-    
+
     public func get<T>() -> T? {
         switch self {
         case .null: return nil
@@ -32,12 +32,12 @@ extension JSON: MapProtocol {
         default: return nil
         }
     }
-    
+
     public var asArray: [JSON]? {
         if case .array(let array) = self {
             return array
         }
         return nil
     }
-    
+
 }

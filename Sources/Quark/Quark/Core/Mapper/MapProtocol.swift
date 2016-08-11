@@ -1,14 +1,14 @@
 public protocol MapProtocol {
-    
+
     subscript(indexPath: IndexPathElement) -> Self? { get }
     subscript(indexPath: [IndexPathElement]) -> Self? { get }
     var asArray: [Self]? { get }
     func get<T>() -> T?
-    
+
 }
 
 extension MapProtocol {
-    
+
     public subscript(indexPath: [IndexPathElement]) -> Self? {
         get {
             var result = self
@@ -22,11 +22,11 @@ extension MapProtocol {
             return result
         }
     }
-    
+
     public subscript(indexPath: IndexPathElement...) -> Self? {
         get {
             return self[indexPath]
         }
     }
-    
+
 }

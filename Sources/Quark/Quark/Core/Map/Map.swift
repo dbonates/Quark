@@ -556,6 +556,44 @@ extension Map {
     }
 }
 
+// MARK: MapProtocol
+
+extension Map: MapProtocol {
+    
+    public subscript(indexPath: IndexPathElement) -> Map? {
+        get {
+            return self[indexPath]
+        }
+    }
+    
+    public func get<T>() -> T? {
+        return try? self.get()
+    }
+    
+    public var asArray: [Map]? {
+        return try? self.asArray()
+    }
+    
+}
+
+extension Mappable {
+    
+    public init(from map: Map) throws {
+        let mapper = Mapper(map)
+        try self.init(mapper: mapper)
+    }
+    
+}
+
+extension MappableWithContext {
+    
+    public init(from map: Map, withContext context: Context) throws {
+        let contextualMapper = ContextualMapper(map, context: context)
+        try self.init(mapper: contextualMapper)
+    }
+    
+}
+
 // MARK: Subscripts
 
 extension Map {

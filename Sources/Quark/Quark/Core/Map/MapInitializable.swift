@@ -133,3 +133,13 @@ extension Dictionary : MapInitializable {
         self = this
     }
 }
+
+// MARK: Mappable
+
+extension MapInitializable where Self: Mappable {
+    
+    public init(map: Map) throws {
+        try self.init(from: map)
+    }
+    
+}

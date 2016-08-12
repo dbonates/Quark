@@ -10,7 +10,7 @@ class RequestTests : XCTestCase {
         XCTAssertEqual(request.headers, ["Content-Length": "0"])
         XCTAssertEqual(request.body, .buffer([]))
 
-        request = Request(body: Drain(buffer: "foo") as C7.InputStream)
+        request = Request(body: Drain(buffer: "foo") as Quark.InputStream)
         XCTAssertEqual(request.method, .get)
         XCTAssertEqual(request.uri, URI(path: "/"))
         XCTAssertEqual(request.version, Version(major: 1, minor: 1))
@@ -41,7 +41,7 @@ class RequestTests : XCTestCase {
         XCTAssertEqual(request.headers, ["Content-Length": "0"])
         XCTAssertEqual(request.body, .buffer([]))
 
-        request = try Request(uri: "/", body: Drain(buffer: "foo") as C7.InputStream)
+        request = try Request(uri: "/", body: Drain(buffer: "foo") as Quark.InputStream)
         XCTAssertEqual(request.method, .get)
         XCTAssertEqual(request.uri, URI(path: "/"))
         XCTAssertEqual(request.version, Version(major: 1, minor: 1))

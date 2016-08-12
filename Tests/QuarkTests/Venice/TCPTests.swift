@@ -14,7 +14,7 @@ class TCPTests : XCTestCase {
             do {
                 let connection = try TCPConnection(host: "127.0.0.1", port: 8080)
                 try connection.open()
-                try connection.close()
+                connection.close()
                 XCTAssertThrowsError(try connection.write([], flush: true, deadline: .never))
             } catch {
                 XCTFail()
@@ -33,7 +33,7 @@ class TCPTests : XCTestCase {
             do {
                 let connection = try TCPConnection(host: "127.0.0.1", port: port)
                 try connection.open()
-                try connection.close()
+                connection.close()
                 XCTAssertThrowsError(try connection.flush())
             } catch {
                 XCTFail()
@@ -52,7 +52,7 @@ class TCPTests : XCTestCase {
             do {
                 let connection = try TCPConnection(host: "127.0.0.1", port: port)
                 try connection.open()
-                try connection.close()
+                connection.close()
                 XCTAssertThrowsError(try connection.read(1))
             } catch {
                 XCTFail()
@@ -80,7 +80,7 @@ class TCPTests : XCTestCase {
         let connection = try host.accept()
         let data = try connection.read(upTo: 1)
         XCTAssert(data == [123])
-        try connection.close()
+        connection.close()
     }
 
     func testClientServer() throws {

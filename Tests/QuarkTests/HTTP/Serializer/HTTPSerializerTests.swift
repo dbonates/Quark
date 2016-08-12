@@ -1,7 +1,7 @@
 import XCTest
 @testable import Quark
 
-class SerializerTestStream : C7.Stream {
+class SerializerTestStream : Quark.Stream {
     let input: String
     var output = ""
     var receivedText = false
@@ -11,15 +11,15 @@ class SerializerTestStream : C7.Stream {
         self.input = input ?? ""
     }
 
-    func close() throws {}
+    func close() {}
 
     func flush(deadline: Double) throws {}
 
-    func write(_ data: C7.Data, deadline: Double) throws {
+    func write(_ data: Quark.Data, deadline: Double) throws {
         self.output += String(describing: data)
     }
 
-    func read(upTo byteCount: Int, deadline: Double) throws -> C7.Data {
+    func read(upTo byteCount: Int, deadline: Double) throws -> Quark.Data {
         guard receivedText else {
             receivedText = true
             return Data(input)
@@ -53,20 +53,12 @@ class HTTPSerializerTests: XCTestCase {
         let outStream = SerializerTestStream()
         let serializer = ResponseSerializer(stream: outStream)
 
-        let response = Response { (stream: C7.OutputStream) in
+        let response = Response { (stream: Quark.OutputStream) in
             try stream.write("foo")
         }
 
         try serializer.serialize(response)
         XCTAssertEqual(outStream.output, "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n3\r\nfoo\r\n0\r\n\r\n")
-    }
-
-    func testResponseAsyncStreamFails() throws {
-        let outStream = SerializerTestStream()
-        let serializer = ResponseSerializer(stream: outStream)
-        var response = Response()
-        response.body = .asyncReader(AsyncDrain())
-        XCTAssertThrowsError(try serializer.serialize(response))
     }
 
     func testRequestSerializeBuffer() throws {
@@ -92,20 +84,12 @@ class HTTPSerializerTests: XCTestCase {
         let outStream = SerializerTestStream()
         let serializer = RequestSerializer(stream: outStream)
 
-        let request = Request { (stream: C7.OutputStream) in
+        let request = Request { (stream: Quark.OutputStream) in
             try stream.write("foo")
         }
 
         try serializer.serialize(request)
         XCTAssertEqual(outStream.output, "GET / HTTP/1.1\r\nTransfer-Encoding: chunked\r\n\r\n3\r\nfoo\r\n0\r\n\r\n")
-    }
-
-    func testRequestAsyncStreamFails() throws {
-        let outStream = SerializerTestStream()
-        let serializer = RequestSerializer(stream: outStream)
-        var request = Request()
-        request.body = .asyncReader(AsyncDrain())
-        XCTAssertThrowsError(try serializer.serialize(request))
     }
 
     func testBodyStream() throws {
@@ -129,11 +113,9 @@ extension HTTPSerializerTests {
             ("testResponseSerializeBuffer", testResponseSerializeBuffer),
             ("testResponseSerializeBuffer", testResponseSerializeReaderStream),
             ("testResponseSerializeBuffer", testResponseSerializeWriterStream),
-            ("testResponseSerializeBuffer", testResponseAsyncStreamFails),
             ("testResponseSerializeBuffer", testRequestSerializeBuffer),
             ("testResponseSerializeBuffer", testRequestSerializeReaderStream),
             ("testResponseSerializeBuffer", testRequestSerializeWriterStream),
-            ("testResponseSerializeBuffer", testRequestAsyncStreamFails),
             ("testResponseSerializeBuffer", testBodyStream),
         ]
     }

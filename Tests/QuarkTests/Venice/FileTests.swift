@@ -40,7 +40,7 @@ class FileTests : XCTestCase {
         XCTAssertFalse(File.isDirectory(path: filePath))
         let word = "hello"
         try file.write(word)
-        try file.close()
+        file.close()
         try File.removeFile(path: filePath)
         XCTAssertThrowsError(try File.removeFile(path: filePath))
         XCTAssertFalse(File.fileExists(path: filePath))
@@ -77,8 +77,7 @@ class FileTests : XCTestCase {
         XCTAssertEqual(file.length, 5)
         try file.write(" world")
         XCTAssertEqual(file.length, 11)
-        try file.close()
-        XCTAssertThrowsError(try file.close())
+        file.close()
         XCTAssertThrowsError(try file.read(5))
     }
 

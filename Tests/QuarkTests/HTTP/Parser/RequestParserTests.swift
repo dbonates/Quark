@@ -17,7 +17,7 @@ let bufferSizes = [
     2048
 ]
 
-let methods: [S4.Method] = [
+let methods: [Quark.Method] = [
     .delete,
     .get,
     .head,
@@ -213,7 +213,7 @@ class RequestParserTests : XCTestCase {
     }
 
     func testUnknownMethod() {
-        XCTAssertEqual(Method(code: 1969), .other(method: "UNKNOWN"))
+        XCTAssertEqual(Quark.Method(code: 1969), .other(method: "UNKNOWN"))
     }
 
     func testDuplicateHeaders() throws {
@@ -248,9 +248,9 @@ extension RequestParserTests {
             ("testCookiesRequest", testCookiesRequest),
             ("testBodyRequest", testBodyRequest),
             ("testManyRequests", testManyRequests),
-            ("testManyRequests", testErrorDescription),
-            ("testManyRequests", testUnknownMethod),
-            ("testManyRequests", testDuplicateHeaders),
+            ("testErrorDescription", testErrorDescription),
+            ("testUnknownMethod", testUnknownMethod),
+            ("testDuplicateHeaders", testDuplicateHeaders),
         ]
     }
 }

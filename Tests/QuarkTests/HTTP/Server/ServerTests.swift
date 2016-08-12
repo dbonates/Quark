@@ -2,7 +2,7 @@ import XCTest
 @testable import Quark
 
 extension Server {
-    init(host: C7.Host, responder: Responder) throws {
+    init(host: Quark.Host, responder: Responder) throws {
         self.tcpHost = host
         self.host = "127.0.0.1"
         self.port = 8080
@@ -13,14 +13,14 @@ extension Server {
     }
 }
 
-class TestHost : C7.Host {
-    let data: C7.Data
+class TestHost : Quark.Host {
+    let data: Quark.Data
 
-    init(data: C7.Data) {
+    init(data: Quark.Data) {
         self.data = data
     }
 
-    func accept(deadline: Double) throws -> C7.Stream {
+    func accept(deadline: Double) throws -> Quark.Stream {
         return Drain(buffer: data)
     }
 }
@@ -52,7 +52,7 @@ class ServerTests : XCTestCase {
 
     func testServerRecover() throws {
         var called = false
-        var stream: C7.Stream = Drain()
+        var stream: Quark.Stream = Drain()
 
         let responder = BasicResponder { request in
             called = true
@@ -73,7 +73,7 @@ class ServerTests : XCTestCase {
 
     func testServerNoRecover() throws {
         var called = false
-        var stream: C7.Stream = Drain()
+        var stream: Quark.Stream = Drain()
 
         let responder = BasicResponder { request in
             called = true
@@ -94,7 +94,7 @@ class ServerTests : XCTestCase {
 
     func testBrokenPipe() throws {
         var called = false
-        var stream: C7.Stream = Drain()
+        var stream: Quark.Stream = Drain()
 
         let responder = BasicResponder { request in
             called = true
@@ -103,7 +103,7 @@ class ServerTests : XCTestCase {
             throw SystemError.brokenPipe
         }
 
-        let request: C7.Data = "GET / HTTP/1.1\r\n\r\n"
+        let request: Quark.Data = "GET / HTTP/1.1\r\n\r\n"
 
         let server = try Server(
             host: TestHost(data: request),
@@ -117,7 +117,7 @@ class ServerTests : XCTestCase {
 
     func testNotKeepAlive() throws {
         var called = false
-        var stream: C7.Stream = Drain()
+        var stream: Quark.Stream = Drain()
 
         let responder = BasicResponder { request in
             called = true
@@ -126,7 +126,7 @@ class ServerTests : XCTestCase {
             return Response()
         }
 
-        let request: C7.Data = "GET / HTTP/1.1\r\nConnection: close\r\n\r\n"
+        let request: Quark.Data = "GET / HTTP/1.1\r\nConnection: close\r\n\r\n"
 
         let server = try Server(
             host: TestHost(data: request),
@@ -142,7 +142,7 @@ class ServerTests : XCTestCase {
     func testUpgradeConnection() throws {
         var called = false
         var upgradeCalled = false
-        var stream: C7.Stream = Drain()
+        var stream: Quark.Stream = Drain()
 
         let responder = BasicResponder { request in
             called = true
@@ -158,7 +158,7 @@ class ServerTests : XCTestCase {
             return response
         }
 
-        let request: C7.Data = "GET / HTTP/1.1\r\nConnection: close\r\n\r\n"
+        let request: Quark.Data = "GET / HTTP/1.1\r\nConnection: close\r\n\r\n"
 
         let server = try Server(
             host: TestHost(data: request),

@@ -152,10 +152,11 @@ extension File {
         try ensureLastOperationSucceeded()
     }
 
-    public func close() throws {
-        guard !closed else { throw ClosableError.alreadyClosed }
+    public func close() {
+        if !closed {
+            fileclose(file)
+        }
         closed = true
-        fileclose(file)
     }
 
     private func ensureFileIsOpen() throws {
@@ -355,7 +356,7 @@ extension String {
         let startPos = characterView.startIndex
         let endPosition = characterView.endIndex
         var currentPosition = endPosition
-        
+
         while currentPosition > startPos {
             let previousPosition = characterView.index(before: currentPosition)
             if characterView[previousPosition] == "/" {
@@ -363,7 +364,7 @@ extension String {
             }
             currentPosition = previousPosition
         }
-        
+
         return currentPosition
     }
 }

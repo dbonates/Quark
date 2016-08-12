@@ -2,9 +2,6 @@ import XCTest
 @testable import QuarkTests
 
 XCTMain([
-    // Controller
-    testCase(ControllerTests.allTests),
-
     // Quark
     testCase(QuarkTests.allTests),
 

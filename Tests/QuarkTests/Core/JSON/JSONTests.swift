@@ -6,7 +6,7 @@ class JSONTests : XCTestCase {
         let parser = JSONMapParser()
         let serializer = JSONMapSerializer(ordering: true)
 
-        let data: C7.Data = "{\"array\":[true,-4.2,-1969,null,\"hey! 😊\"],\"boolean\":false,\"dictionaryOfEmptyStuff\":{\"emptyArray\":[],\"emptyDictionary\":{},\"emptyString\":\"\"},\"double\":4.2,\"integer\":1969,\"null\":null,\"string\":\"yoo! 😎\"}"
+        let data: Quark.Data = "{\"array\":[true,-4.2,-1969,null,\"hey! 😊\"],\"boolean\":false,\"dictionaryOfEmptyStuff\":{\"emptyArray\":[],\"emptyDictionary\":{},\"emptyString\":\"\"},\"double\":4.2,\"integer\":1969,\"null\":null,\"string\":\"yoo! 😎\"}"
 
         let map: Map = [
             "array": [
@@ -37,7 +37,7 @@ class JSONTests : XCTestCase {
 
     func testNumberWithExponent() throws {
         let parser = JSONMapParser()
-        let data: C7.Data = "[1E3]"
+        let data: Quark.Data = "[1E3]"
         let map: Map = [1_000]
         let parsed = try parser.parse(data)
         XCTAssertEqual(parsed, map)
@@ -45,7 +45,7 @@ class JSONTests : XCTestCase {
 
     func testNumberWithNegativeExponent() throws {
         let parser = JSONMapParser()
-        let data: C7.Data = "[1E-3]"
+        let data: Quark.Data = "[1E-3]"
         let map: Map = [1E-3]
         let parsed = try parser.parse(data)
         XCTAssertEqual(parsed, map)
@@ -53,7 +53,7 @@ class JSONTests : XCTestCase {
 
     func testWhitespaces() throws {
         let parser = JSONMapParser()
-        let data: C7.Data = "[ \n\t\r1 \n\t\r]"
+        let data: Quark.Data = "[ \n\t\r1 \n\t\r]"
         let map: Map = [1]
         let parsed = try parser.parse(data)
         XCTAssertEqual(parsed, map)
@@ -61,7 +61,7 @@ class JSONTests : XCTestCase {
 
     func testNumberStartingWithZero() throws {
         let parser = JSONMapParser()
-        let data: C7.Data = "[0001000]"
+        let data: Quark.Data = "[0001000]"
         let map: Map = [1000]
         let parsed = try parser.parse(data)
         XCTAssertEqual(parsed, map)
@@ -71,7 +71,7 @@ class JSONTests : XCTestCase {
         let parser = JSONMapParser()
         let serializer = JSONMapSerializer()
 
-        let data: C7.Data = "{\"foo\":\"\\\"\"}"
+        let data: Quark.Data = "{\"foo\":\"\\\"\"}"
 
         let map: Map = [
             "foo": "\""
@@ -88,7 +88,7 @@ class JSONTests : XCTestCase {
         let parser = JSONMapParser()
         let serializer = JSONMapSerializer()
 
-        let data: C7.Data = "{\"foo\":\"bar\",\"fuu\":\"baz\"}"
+        let data: Quark.Data = "{\"foo\":\"bar\",\"fuu\":\"baz\"}"
 
         let map: Map = [
             "foo": "bar",
@@ -125,7 +125,7 @@ class JSONTests : XCTestCase {
         let parser = JSONMapParser()
         let serializer = JSONMapSerializer()
 
-        let data: C7.Data = "[\"\\ud83d\\ude0e\"]"
+        let data: Quark.Data = "[\"\\ud83d\\ude0e\"]"
         let map: Map = ["😎"]
 
         let parsed = try parser.parse(data)
@@ -139,7 +139,7 @@ class JSONTests : XCTestCase {
         let parser = JSONMapParser()
         let serializer = JSONMapSerializer()
 
-        let data: C7.Data = "[\"\\u221e\"]"
+        let data: Quark.Data = "[\"\\u221e\"]"
         let map: Map = ["∞"]
 
         let parsed = try parser.parse(data)
@@ -151,7 +151,7 @@ class JSONTests : XCTestCase {
 
     func testFailures() throws {
         let parser = JSONMapParser()
-        var data: C7.Data
+        var data: Quark.Data
 
         data = ""
         XCTAssertThrowsError(try parser.parse(data))

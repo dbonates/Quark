@@ -1,6 +1,6 @@
 import CLibvenice
 
-public final class TCPConnection : Connection {
+public final class TCPConnection : Stream {
     public var ip: IP
     var socket: tcpsock?
     public private(set) var closed = true
@@ -17,7 +17,7 @@ public final class TCPConnection : Connection {
         self.ip = try IP(remoteAddress: host, port: port, deadline: deadline)
     }
 
-    public func open(deadline: Double) throws {
+    public func open(deadline: Double = .never) throws {
         self.socket = tcpconnect(ip.address, deadline.int64milliseconds)
         try ensureLastOperationSucceeded()
         self.closed = false
@@ -89,15 +89,11 @@ public final class TCPConnection : Connection {
         return Data(data.prefix(received))
     }
 
-    public func close() throws {
-        let socket = try getSocket()
-
-        if closed {
-            throw ClosableError.alreadyClosed
+    public func close() {
+        if !closed, let socket = try? getSocket() {
+            tcpclose(socket)
         }
 
-        tcpclose(socket)
-        try ensureLastOperationSucceeded()
         closed = true
     }
 

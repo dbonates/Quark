@@ -2,7 +2,7 @@ import XCTest
 @testable import Quark
 
 class BodyTests : XCTestCase {
-    let data: C7.Data = [0x00, 0x01, 0x02, 0x03]
+    let data: Quark.Data = [0x00, 0x01, 0x02, 0x03]
 
     func checkBodyProperties(_ body: Body) {
         var bodyForBuffer = body
@@ -88,13 +88,6 @@ class BodyTests : XCTestCase {
         XCTAssertNotEqual(buffer, writer)
         XCTAssertNotEqual(reader, writer)
     }
-
-    func testBecomeFailure() {
-        var body = Body.asyncReader(AsyncDrain())
-        XCTAssertThrowsError(try body.becomeBuffer())
-        XCTAssertThrowsError(try body.becomeReader())
-        XCTAssertThrowsError(try body.becomeWriter())
-    }
 }
 
 extension Body {
@@ -112,7 +105,6 @@ extension BodyTests {
             ("testReader", testReader),
             ("testBuffer", testBuffer),
             ("testBodyEquality", testBodyEquality),
-            ("testBecomeFailure", testBecomeFailure),
         ]
     }
 }

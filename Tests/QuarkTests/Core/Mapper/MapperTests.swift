@@ -185,6 +185,31 @@ class MapperTests: XCTestCase {
         XCTAssertEqual(test.ints, [.kharkiv, .kiev])
     }
 
+    func testEnumFail() {
+
+        enum Device: String {
+            case iphone
+            case ipod
+            case mac
+        }
+
+        struct Apple: Mappable {
+            let device: Device
+
+            init<Map : MapProtocol>(mapper: Mapper<Map>) throws {
+                self.device = try mapper.map(from: "device")
+            }
+        }
+
+        let dict: Map = ["device": "windows-pc"]
+        XCTAssertThrowsError(try Apple(from: dict)) { error in
+            guard let error = error as? MapperError, case .cannotInitializeFromRawValue = error else {
+                XCTFail("Wrong error thrown; must be .cannotInitializeFromRawValue")
+                return
+            }
+        }
+    }
+
     enum TestContext {
         case apple
         case peach
@@ -333,6 +358,32 @@ class MapperTests: XCTestCase {
         ])
         _ = try! JSONTest(from: json)
 
+    }
+
+    func testFlatArray() {
+
+        struct Person: Mappable {
+            let id: Int
+            let name: String
+
+            init<Map : MapProtocol>(mapper: Mapper<Map>) throws {
+                self.id = try mapper.map(from: "id")
+                self.name = try mapper.map(from: "name")
+            }
+        }
+
+        struct PersonCollection: Mappable {
+            let people: [Person]
+
+            init<Map : MapProtocol>(mapper: Mapper<Map>) throws {
+                self.people = try mapper.map()
+            }
+        }
+
+        let dict: Map = [["id": 15, "name": "Alfred"], ["id": 21, "name": "Bruce"]]
+        let collection = try! PersonCollection(from: dict)
+        XCTAssertEqual(collection.people.map({ $0.id }), [15, 21])
+        XCTAssertEqual(collection.people.map({ $0.name }), ["Alfred", "Bruce"])
     }
 
 }

@@ -1,7 +1,7 @@
 public enum MapperError: Error {
     case noValue(forIndexPath: [IndexPathElement])
-    case wrongType(String)
-    case cannotInitializeFromRawValue
+    case wrongType(Any.Type)
+    case cannotInitializeFromRawValue(Any)
     case cannotRepresentAsArray
 }
 
@@ -27,8 +27,7 @@ extension MapperProtocol {
         if let value: T = map.get() {
             return value
         } else {
-            let type = T.self
-            throw MapperError.wrongType(String(describing: type))
+            throw MapperError.wrongType(T.self)
         }
     }
 
@@ -45,7 +44,7 @@ extension MapperProtocol {
         if let value = T(rawValue: raw) {
             return value
         } else {
-            throw MapperError.cannotInitializeFromRawValue
+            throw MapperError.cannotInitializeFromRawValue(raw)
         }
     }
 

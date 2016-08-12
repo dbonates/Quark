@@ -359,6 +359,54 @@ class MapperTests: XCTestCase {
         _ = try! JSONTest(from: json)
 
     }
+    
+    func testExhaustiveStringAnyMapping() {
+        
+        struct DictNest: Mappable {
+            let int: Int
+            
+            init<Map : MapProtocol>(mapper: Mapper<Map>) throws {
+                self.int = try mapper.map(from: "int")
+            }
+        }
+        
+        struct DictTest: Mappable {
+            
+            let int: Int
+            let string: String
+            let double: Double
+            let nest: DictNest
+            let strings: [String]
+            let nests: [DictNest]
+            let null: Bool?
+            
+            init<Map : MapProtocol>(mapper: Mapper<Map>) throws {
+                self.int = try mapper.map(from: "int")
+                self.string = try mapper.map(from: "here", "string")
+                self.double = try mapper.map(from: "double")
+                self.nest = try mapper.map(from: "nest")
+                self.strings = try mapper.map(arrayFrom: "strings")
+                self.nests = try mapper.map(arrayFrom: "nests")
+                self.null = try? mapper.map(from: 5)
+            }
+            
+        }
+        
+        let stringDict: [String: Any] = ["string": "Quark"]
+        let nestDict: [String: Any] = ["int": 3]
+        let nestsDictArray: [[String: Any]] = sequence(first: 1, next: { if $0 < 6 { return $0 + 1 } else { return nil } }).map({ ["int": $0] })
+        let stringsArray: [Any] = ["rope", "summit"]
+        let hugeDict: [String: Any] = [
+            "int": Int(5),
+            "here": stringDict,
+            "double": Double(8.1),
+            "nest": nestDict,
+            "strings": stringsArray,
+            "nests": nestsDictArray,
+        ]
+        
+        _ = try! DictTest(from: hugeDict)
+    }
 
     func testFlatArray() {
 

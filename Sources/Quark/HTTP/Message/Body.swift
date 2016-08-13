@@ -67,6 +67,7 @@ extension Body {
         case .buffer(let data):
             let closure: ((OutputStream) throws -> Void) = { writer in
                 try writer.write(data, deadline: deadline)
+                try writer.flush()
             }
             self = .writer(closure)
             return closure
@@ -74,6 +75,7 @@ extension Body {
             let closure: ((OutputStream) throws -> Void) = { writer in
                 let data = Drain(stream: reader, deadline: deadline).data
                 try writer.write(data, deadline: deadline)
+                try writer.flush()
             }
             self = .writer(closure)
             return closure

@@ -5,6 +5,7 @@ class QuarkTests : XCTestCase {
     func testConfiguration() throws {
         let file = try File(path: "/tmp/TestConfiguration", mode: .truncateWrite)
         try file.write("import QuarkConfiguration\n\nconfiguration = [\"server\": [\"log\": true]]")
+        try file.flush()
         let configuration = try loadConfiguration(configurationFile: "/tmp/TestConfiguration", arguments: [])
         XCTAssertEqual(configuration["server", "log"], true)
     }

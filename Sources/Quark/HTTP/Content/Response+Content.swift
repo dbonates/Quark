@@ -15,7 +15,7 @@ extension Response {
         self.init(
             status: status,
             headers: headers,
-            body: []
+            body: Data()
         )
 
         self.content = content.map
@@ -25,7 +25,7 @@ extension Response {
         self.init(
             status: status,
             headers: headers,
-            body: []
+            body: Data()
         )
 
         self.content = content.map
@@ -35,7 +35,7 @@ extension Response {
         self.init(
             status: status,
             headers: headers,
-            body: []
+            body: Data()
         )
 
         self.content = content.map
@@ -45,7 +45,7 @@ extension Response {
         self.init(
             status: status,
             headers: headers,
-            body: []
+            body: Data()
         )
 
         self.content = content.map
@@ -55,7 +55,7 @@ extension Response {
         self.init(
             status: status,
             headers: headers,
-            body: []
+            body: Data()
         )
 
         self.content = try content.asMap()

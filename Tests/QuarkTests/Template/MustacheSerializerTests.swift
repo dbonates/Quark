@@ -23,6 +23,7 @@ class MustacheSerializerTests : XCTestCase {
     func testInvalidEncoding() throws {
         let templateFile = try File(path: "/tmp/ZewoTemplate", mode: .truncateWrite)
         try templateFile.write([0xFF])
+        try templateFile.flush()
         let serializer = MustacheSerializer(templatePath: "/tmp/ZewoTemplate")
         XCTAssertThrowsError(try serializer.serialize([]))
     }

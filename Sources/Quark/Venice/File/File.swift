@@ -30,7 +30,6 @@ public final class File : Stream {
     fileprivate var file: mfile?
     public fileprivate(set) var closed = false
     public fileprivate(set) var path: String? = nil
-    public var bufferSize: Int = 2048
 
     public func cursorPosition() throws -> Int {
         let position = Int(filetell(file))
@@ -87,63 +86,57 @@ public final class File : Stream {
 }
 
 extension File {
-    public func write(_ data: Data, flush: Bool, deadline: Double = .never) throws {
+    public func write(_ data: Data, length: Int, deadline: Double) throws {
         try ensureFileIsOpen()
 
-        _ = data.withUnsafeBufferPointer {
-            filewrite(file, $0.baseAddress, $0.count, deadline.int64milliseconds)
+        _ = data.withUnsafeBytes {
+            filewrite(file, $0, length, deadline.int64milliseconds)
+        }
+
+        try ensureLastOperationSucceeded()
+    }
+
+    public func read(into buffer: inout Data, deadline: Double) throws -> Int {
+        try ensureFileIsOpen()
+
+        let read = buffer.withUnsafeMutableBytes {
+            filereadlh(file, $0, 1, buffer.count, deadline.int64milliseconds)
         }
 
         try ensureLastOperationSucceeded()
 
-        if flush {
-            try self.flush(deadline: deadline)
-        }
+        return read
     }
 
-    public func write(_ data: Data, deadline: Double) throws {
-        try write(data, flush: true, deadline: deadline)
-    }
+//    public func read(_ byteCount: Int, deadline: Double = .never) throws -> Data {
+//        try ensureFileIsOpen()
+//
+//        var data = Data(count: byteCount)
+//        let received = data.withUnsafeMutableBytes {
+//            fileread(file, $0, data.count, deadline.int64milliseconds)
+//        }
+//
+//        let receivedData = Data(data.prefix(received))
+//        try ensureLastOperationSucceeded()
+//
+//        return receivedData
+//    }
 
-    public func read(upTo byteCount: Int, deadline: Double) throws -> Data {
-        try ensureFileIsOpen()
-
-        var data = Data.buffer(with: byteCount)
-        let received = data.withUnsafeMutableBufferPointer {
-            filereadlh(file, $0.baseAddress, 1, $0.count, deadline.int64milliseconds)
-        }
-
-        try ensureLastOperationSucceeded()
-
-        return Data(data.prefix(received))
-    }
-
-    public func read(_ byteCount: Int, deadline: Double = .never) throws -> Data {
-        try ensureFileIsOpen()
-
-        var data = Data.buffer(with: byteCount)
-        let received = data.withUnsafeMutableBufferPointer {
-            fileread(file, $0.baseAddress, $0.count, deadline.int64milliseconds)
-        }
-
-        let receivedData = Data(data.prefix(received))
-        try ensureLastOperationSucceeded()
-
-        return receivedData
-    }
-
-    public func readAll(deadline: Double = .never) throws -> Data {
-        var data = Data()
+    public func readAll(bufferSize: Int = 2048, deadline: Double = .never) throws -> Data {
+        var inputBuffer = Data(count: bufferSize)
+        var outputBuffer = Data()
 
         while true {
-            data += try read(upTo: bufferSize, deadline: deadline)
+            let outputRead = try read(into: &inputBuffer, deadline: deadline)
 
-            if cursorIsAtEndOfFile {
+            if outputRead == 0 || cursorIsAtEndOfFile {
                 break
             }
+
+            outputBuffer.append(Data(inputBuffer.prefix(outputRead)))
         }
 
-        return data
+        return outputBuffer
     }
 
     public func flush(deadline: Double) throws {
@@ -161,14 +154,8 @@ extension File {
 
     private func ensureFileIsOpen() throws {
         if closed {
-            throw StreamError.closedStream(data: [])
+            throw StreamError.closedStream(data: Data())
         }
-    }
-}
-
-extension File {
-    public func write(_ convertible: DataConvertible, flush: Bool = true, deadline: Double = .never) throws {
-        try write(convertible.data, flush: flush, deadline: deadline)
     }
 }
 

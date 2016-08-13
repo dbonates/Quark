@@ -58,6 +58,7 @@ class BodyTests : XCTestCase {
     func testWriter() {
         let writer = Body.writer { stream in
             try stream.write(self.data)
+            try stream.flush()
         }
         checkBodyProperties(writer)
     }
@@ -81,6 +82,7 @@ class BodyTests : XCTestCase {
 
         let writer = Body.writer { stream in
             try stream.write(self.data)
+            try stream.flush()
         }
 
         XCTAssertEqual(buffer, buffer)

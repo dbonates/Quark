@@ -1,12 +1,14 @@
 public struct RequestSerializer {
     let stream: Stream
+    let bufferSize: Int
 
-    public init(stream: Stream) {
+    public init(stream: Stream, bufferSize: Int = 2048) {
         self.stream = stream
+        self.bufferSize = bufferSize
     }
 
     public func serialize(_ request: Request) throws {
-        let newLine: Data = [13, 10]
+        let newLine: Data = Data([13, 10])
 
         try stream.write("\(request.method) \(request.uri.percentEncoded()) HTTP/\(request.version.major).\(request.version.minor)")
         try stream.write(newLine)
@@ -22,16 +24,18 @@ public struct RequestSerializer {
         case .buffer(let buffer):
             try stream.write(buffer)
         case .reader(let reader):
-            while !reader.closed {
-                let data = try reader.read(upTo: 2014)
+            var buffer = Data(count: bufferSize)
 
-                if data.isEmpty {
+            while !reader.closed {
+                let bytesRead = try reader.read(into: &buffer)
+
+                if bytesRead == 0 {
                     break
                 }
 
-                try stream.write(String(data.count, radix: 16).data)
+                try stream.write(String(bytesRead, radix: 16))
                 try stream.write(newLine)
-                try stream.write(data)
+                try stream.write(buffer, length: bytesRead)
                 try stream.write(newLine)
             }
 

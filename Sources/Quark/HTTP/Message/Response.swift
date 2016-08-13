@@ -53,7 +53,7 @@ extension Response {
         }
     }
 
-    public init(status: Status = .ok, headers: Headers = [:], body: Data = []) {
+    public init(status: Status = .ok, headers: Headers = [:], body: Data = Data()) {
         self.init(
             status: status,
             headers: headers,

@@ -5,6 +5,7 @@ class FileTests : XCTestCase {
     func testReadWrite() throws {
         let file = try File(path: "/tmp/zewo-test-file", mode: .truncateReadWrite)
         try file.write("abc")
+        try file.flush()
         XCTAssert(try file.cursorPosition() == 3)
         _ = try file.seek(cursorPosition: 0)
         var data = try file.read(3)
@@ -26,6 +27,7 @@ class FileTests : XCTestCase {
         let file = try File(path: "/tmp/zewo-test-file", mode: .truncateReadWrite)
         let word = "hello"
         try file.write(word)
+        try file.flush()
         _ = try file.seek(cursorPosition: 0)
         let data = try file.readAll()
         XCTAssert(data.count == word.utf8.count)
@@ -40,6 +42,7 @@ class FileTests : XCTestCase {
         XCTAssertFalse(File.isDirectory(path: filePath))
         let word = "hello"
         try file.write(word)
+        try file.flush()
         file.close()
         try File.removeFile(path: filePath)
         XCTAssertThrowsError(try File.removeFile(path: filePath))
@@ -74,8 +77,10 @@ class FileTests : XCTestCase {
     func testFileSize() throws {
         let file = try File(path: "/tmp/zewo-test-file", mode: .truncateReadWrite)
         try file.write(Data("hello"), deadline: .never)
+        try file.flush()
         XCTAssertEqual(file.length, 5)
         try file.write(" world")
+        try file.flush()
         XCTAssertEqual(file.length, 11)
         file.close()
         XCTAssertThrowsError(try file.read(5))

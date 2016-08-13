@@ -7,7 +7,7 @@ struct RequestParserContext {
     var uri: URI! = nil
     var version: Version = Version(major: 0, minor: 0)
     var headers: Headers = Headers([:])
-    var body: Data = []
+    var body: Data = Data()
 
     var currentURI = ""
     var buildingHeaderName = ""
@@ -38,7 +38,7 @@ public final class RequestParser {
     let context: RequestContext
     var parser = http_parser()
     var requests: [Request] = []
-    let bufferSize: Int
+    var buffer: Data
 
     convenience public init(stream: Stream) {
         self.init(stream: stream, bufferSize: 2048)
@@ -46,7 +46,7 @@ public final class RequestParser {
 
     public init(stream: Stream, bufferSize: Int) {
         self.stream = stream
-        self.bufferSize = bufferSize
+        self.buffer = Data(count: bufferSize)
         self.context = RequestContext.allocate(capacity: 1)
         self.context.initialize(to: RequestParserContext { request in
             self.requests.insert(request, at: 0)
@@ -70,11 +70,12 @@ public final class RequestParser {
                 return request
             }
 
-            let data = try stream.read(upTo: bufferSize)
-            let p = UnsafeRawPointer(data.bytes).assumingMemoryBound(to: Int8.self)
-            let bytesParsed = http_parser_execute(&parser, &requestSettings, p, data.count)
+            let bytesRead = try stream.read(into: &buffer)
+            let bytesParsed = buffer.withUnsafeBytes {
+                http_parser_execute(&parser, &requestSettings, $0, bytesRead)
+            }
 
-            guard bytesParsed == data.count else {
+            guard bytesParsed == bytesRead else {
                 defer { resetParser() }
                 throw http_errno(parser.http_errno)
             }
@@ -140,8 +141,8 @@ func onRequestHeadersComplete(_ parser: Parser?) -> Int32 {
 
 func onRequestBody(_ parser: Parser?, data: UnsafePointer<Int8>?, length: Int) -> Int32 {
     parser!.pointee.data.assumingMemoryBound(to: RequestParserContext.self).withPointee {
-        let buffer = UnsafeBufferPointer(start: UnsafeRawPointer(data!).assumingMemoryBound(to: UInt8.self), count: length)
-        $0.body += Data(Array(buffer))
+        let buffer = UnsafeBufferPointer(start: data, count: length)
+        $0.body.append(buffer)
         return
     }
 
@@ -164,7 +165,7 @@ func onRequestMessageComplete(_ parser: Parser?) -> Int32 {
         $0.uri = nil
         $0.version = Version(major: 0, minor: 0)
         $0.headers = Headers([:])
-        $0.body = []
+        $0.body = Data()
         return 0
     }
 }

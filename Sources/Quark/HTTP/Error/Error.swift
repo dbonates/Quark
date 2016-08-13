@@ -93,111 +93,111 @@ extension ClientError : ResponseRepresentable {
 
 extension HTTPError {
     public static var badRequest: ClientError {
-        return ClientError.badRequest(headers: [:], body: .buffer([]))
+        return ClientError.badRequest(headers: [:], body: .buffer(Data()))
     }
 
     public static var unauthorized: ClientError {
-        return ClientError.unauthorized(headers: [:], body: .buffer([]))
+        return ClientError.unauthorized(headers: [:], body: .buffer(Data()))
     }
 
     public static var paymentRequired: ClientError {
-        return ClientError.paymentRequired(headers: [:], body: .buffer([]))
+        return ClientError.paymentRequired(headers: [:], body: .buffer(Data()))
     }
 
     public static var forbidden: ClientError {
-        return ClientError.forbidden(headers: [:], body: .buffer([]))
+        return ClientError.forbidden(headers: [:], body: .buffer(Data()))
     }
 
     public static var notFound: ClientError {
-        return ClientError.notFound(headers: [:], body: .buffer([]))
+        return ClientError.notFound(headers: [:], body: .buffer(Data()))
     }
 
     public static var methodNotAllowed: ClientError {
-        return ClientError.methodNotAllowed(headers: [:], body: .buffer([]))
+        return ClientError.methodNotAllowed(headers: [:], body: .buffer(Data()))
     }
 
     public static var notAcceptable: ClientError {
-        return ClientError.notAcceptable(headers: [:], body: .buffer([]))
+        return ClientError.notAcceptable(headers: [:], body: .buffer(Data()))
     }
 
     public static var proxyAuthenticationRequired: ClientError {
-        return ClientError.proxyAuthenticationRequired(headers: [:], body: .buffer([]))
+        return ClientError.proxyAuthenticationRequired(headers: [:], body: .buffer(Data()))
     }
 
     public static var requestTimeout: ClientError {
-        return ClientError.requestTimeout(headers: [:], body: .buffer([]))
+        return ClientError.requestTimeout(headers: [:], body: .buffer(Data()))
     }
 
     public static var conflict: ClientError {
-        return ClientError.conflict(headers: [:], body: .buffer([]))
+        return ClientError.conflict(headers: [:], body: .buffer(Data()))
     }
 
     public static var gone: ClientError {
-        return ClientError.gone(headers: [:], body: .buffer([]))
+        return ClientError.gone(headers: [:], body: .buffer(Data()))
     }
 
     public static var lengthRequired: ClientError {
-        return ClientError.lengthRequired(headers: [:], body: .buffer([]))
+        return ClientError.lengthRequired(headers: [:], body: .buffer(Data()))
     }
 
     public static var preconditionFailed: ClientError {
-        return ClientError.preconditionFailed(headers: [:], body: .buffer([]))
+        return ClientError.preconditionFailed(headers: [:], body: .buffer(Data()))
     }
 
     public static var requestEntityTooLarge: ClientError {
-        return ClientError.requestEntityTooLarge(headers: [:], body: .buffer([]))
+        return ClientError.requestEntityTooLarge(headers: [:], body: .buffer(Data()))
     }
 
     public static var requestURITooLong: ClientError {
-        return ClientError.requestURITooLong(headers: [:], body: .buffer([]))
+        return ClientError.requestURITooLong(headers: [:], body: .buffer(Data()))
     }
 
     public static var unsupportedMediaType: ClientError {
-        return ClientError.unsupportedMediaType(headers: [:], body: .buffer([]))
+        return ClientError.unsupportedMediaType(headers: [:], body: .buffer(Data()))
     }
 
     public static var requestedRangeNotSatisfiable: ClientError {
-        return ClientError.requestedRangeNotSatisfiable(headers: [:], body: .buffer([]))
+        return ClientError.requestedRangeNotSatisfiable(headers: [:], body: .buffer(Data()))
     }
 
     public static var expectationFailed: ClientError {
-        return ClientError.expectationFailed(headers: [:], body: .buffer([]))
+        return ClientError.expectationFailed(headers: [:], body: .buffer(Data()))
     }
 
     public static var imATeapot: ClientError {
-        return ClientError.imATeapot(headers: [:], body: .buffer([]))
+        return ClientError.imATeapot(headers: [:], body: .buffer(Data()))
     }
 
     public static var authenticationTimeout: ClientError {
-        return ClientError.authenticationTimeout(headers: [:], body: .buffer([]))
+        return ClientError.authenticationTimeout(headers: [:], body: .buffer(Data()))
     }
 
     public static var enhanceYourCalm: ClientError {
-        return ClientError.enhanceYourCalm(headers: [:], body: .buffer([]))
+        return ClientError.enhanceYourCalm(headers: [:], body: .buffer(Data()))
     }
 
     public static var unprocessableEntity: ClientError {
-        return ClientError.unprocessableEntity(headers: [:], body: .buffer([]))
+        return ClientError.unprocessableEntity(headers: [:], body: .buffer(Data()))
     }
 
     public static var locked: ClientError {
-        return ClientError.locked(headers: [:], body: .buffer([]))
+        return ClientError.locked(headers: [:], body: .buffer(Data()))
     }
 
     public static var failedDependency: ClientError {
-        return ClientError.failedDependency(headers: [:], body: .buffer([]))
+        return ClientError.failedDependency(headers: [:], body: .buffer(Data()))
     }
 
     public static var preconditionRequired: ClientError {
-        return ClientError.preconditionRequired(headers: [:], body: .buffer([]))
+        return ClientError.preconditionRequired(headers: [:], body: .buffer(Data()))
     }
 
     public static var tooManyRequests: ClientError {
-        return ClientError.tooManyRequests(headers: [:], body: .buffer([]))
+        return ClientError.tooManyRequests(headers: [:], body: .buffer(Data()))
     }
 
     public static var requestHeaderFieldsTooLarge: ClientError {
-        return ClientError.requestHeaderFieldsTooLarge(headers: [:], body: .buffer([]))
+        return ClientError.requestHeaderFieldsTooLarge(headers: [:], body: .buffer(Data()))
     }
 }
 
@@ -356,47 +356,47 @@ extension ServerError : ResponseRepresentable {
 
 extension HTTPError {
     public static var internalServerError: ServerError {
-        return ServerError.internalServerError(headers: [:], body: .buffer([]))
+        return ServerError.internalServerError(headers: [:], body: .buffer(Data()))
     }
 
     public static var notImplemented: ServerError {
-        return ServerError.notImplemented(headers: [:], body: .buffer([]))
+        return ServerError.notImplemented(headers: [:], body: .buffer(Data()))
     }
 
     public static var badGateway: ServerError {
-        return ServerError.badGateway(headers: [:], body: .buffer([]))
+        return ServerError.badGateway(headers: [:], body: .buffer(Data()))
     }
 
     public static var serviceUnavailable: ServerError {
-        return ServerError.serviceUnavailable(headers: [:], body: .buffer([]))
+        return ServerError.serviceUnavailable(headers: [:], body: .buffer(Data()))
     }
 
     public static var gatewayTimeout: ServerError {
-        return ServerError.gatewayTimeout(headers: [:], body: .buffer([]))
+        return ServerError.gatewayTimeout(headers: [:], body: .buffer(Data()))
     }
 
     public static var httpVersionNotSupported: ServerError {
-        return ServerError.httpVersionNotSupported(headers: [:], body: .buffer([]))
+        return ServerError.httpVersionNotSupported(headers: [:], body: .buffer(Data()))
     }
 
     public static var variantAlsoNegotiates: ServerError {
-        return ServerError.variantAlsoNegotiates(headers: [:], body: .buffer([]))
+        return ServerError.variantAlsoNegotiates(headers: [:], body: .buffer(Data()))
     }
 
     public static var insufficientStorage: ServerError {
-        return ServerError.insufficientStorage(headers: [:], body: .buffer([]))
+        return ServerError.insufficientStorage(headers: [:], body: .buffer(Data()))
     }
 
     public static var loopDetected: ServerError {
-        return ServerError.loopDetected(headers: [:], body: .buffer([]))
+        return ServerError.loopDetected(headers: [:], body: .buffer(Data()))
     }
 
     public static var notExtended: ServerError {
-        return ServerError.notExtended(headers: [:], body: .buffer([]))
+        return ServerError.notExtended(headers: [:], body: .buffer(Data()))
     }
 
     public static var networkAuthenticationRequired: ServerError {
-        return ServerError.networkAuthenticationRequired(headers: [:], body: .buffer([]))
+        return ServerError.networkAuthenticationRequired(headers: [:], body: .buffer(Data()))
     }
 }
 

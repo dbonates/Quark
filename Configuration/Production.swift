@@ -8,9 +8,9 @@ configuration = [
         ],
         "backlog": 128,
         "reusePort": false,
-        "log": true,
-        "session": true,
-        "contentNegotiation": true,
+        "log": false,
+        "session": false,
+        "contentNegotiation": false,
         "bufferSize": 2048
     ]
 ]

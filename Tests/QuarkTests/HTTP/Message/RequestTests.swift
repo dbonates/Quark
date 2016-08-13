@@ -19,6 +19,7 @@ class RequestTests : XCTestCase {
 
         request = Request { stream in
             try stream.write("foo")
+            try stream.flush()
         }
         XCTAssertEqual(request.method, .get)
         XCTAssertEqual(request.uri, URI(path: "/"))
@@ -50,6 +51,7 @@ class RequestTests : XCTestCase {
 
         request = try Request(uri: "/") { stream in
             try stream.write("foo")
+            try stream.flush()
         }
         XCTAssertEqual(request.method, .get)
         XCTAssertEqual(request.uri, URI(path: "/"))

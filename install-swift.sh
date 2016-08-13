@@ -2,15 +2,15 @@
 
 snapshot_host="https://zewo-swift-snapshots.s3.amazonaws.com"
 
-if [ -f ".swift-version" ]; then
-    snapshot=$(head -n 1 .swift-version)
+if [ ! -z "$1" ]; then
+    snapshot=$1
 else
-    if [ -z "$1" ]; then
+    if [ -f ".swift-version" ]; then
+        snapshot=$(head -n 1 .swift-version)
+    else
         echo "No snapshot version supplied."
         exit 1
     fi
-
-    snapshot=$1
 fi
 
 swiftenv_was_just_installed=false

@@ -7,6 +7,7 @@ public var configuration: Map = nil {
             let serializer = JSONMapSerializer()
             let data = try serializer.serialize(configuration)
             try file.write(data)
+            try file.flush()
         } catch {
             fatalError(String(describing: error))
         }

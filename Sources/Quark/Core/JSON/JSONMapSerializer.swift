@@ -44,7 +44,7 @@ public struct JSONMapSerializer : MapSerializer {
 
         if ordering {
             for (key, value) in dictionary.sorted(by: {$0.0 < $1.0}) {
-                string += try "\(escape(key)):\(serialize(value))"
+                string += try escape(key) + ":" + serializeToString(value)
 
                 if index != dictionary.count - 1 {
                     string += ","
@@ -54,7 +54,7 @@ public struct JSONMapSerializer : MapSerializer {
             }
         } else {
             for (key, value) in dictionary {
-                string += try "\(escape(key)):\(serialize(value))"
+                string += try escape(key) + ":" + serializeToString(value)
 
                 if index != dictionary.count - 1 {
                     string += ","

@@ -8,7 +8,7 @@ struct ResponseParserContext {
     var version: Version = Version(major: 0, minor: 0)
     var headers: Headers = [:]
     var cookieHeaders: Set<String> = []
-    var body: Data = []
+    var body: Data = Data()
 
     var buildingHeaderName = ""
     var buildingCookieValue = ""
@@ -39,7 +39,7 @@ public final class ResponseParser {
     let context: ResponseContext
     var parser = http_parser()
     var responses: [Response] = []
-    let bufferSize: Int
+    var buffer: Data
 
     convenience public init(stream: Stream) {
         self.init(stream: stream, bufferSize: 2048)
@@ -47,7 +47,7 @@ public final class ResponseParser {
 
     public init(stream: Stream, bufferSize: Int) {
         self.stream = stream
-        self.bufferSize = bufferSize
+        self.buffer = Data(count: bufferSize)
         self.context = ResponseContext.allocate(capacity: 1)
         self.context.initialize(to: ResponseParserContext { response in
             self.responses.insert(response, at: 0)
@@ -71,11 +71,12 @@ public final class ResponseParser {
                 return response
             }
 
-            let data = try stream.read(upTo: bufferSize)
-            let pointer = UnsafeRawPointer(data.bytes).assumingMemoryBound(to: Int8.self)
-            let bytesParsed = http_parser_execute(&parser, &responseSettings, pointer, data.count)
+            let read = try stream.read(into: &buffer)
+            let bytesParsed = buffer.withUnsafeBytes {
+                http_parser_execute(&parser, &responseSettings, $0, read)
+            }
 
-            guard bytesParsed == data.count else {
+            guard bytesParsed == read else {
                 defer { resetParser() }
                 throw http_errno(parser.http_errno)
             }
@@ -152,9 +153,8 @@ func onResponseHeadersComplete(_ parser: Parser?) -> Int32 {
 
 func onResponseBody(_ parser: Parser?, data: UnsafePointer<Int8>?, length: Int) -> Int32 {
     return parser!.pointee.data.assumingMemoryBound(to: ResponseParserContext.self).withPointee {
-        let pointer = UnsafeRawPointer(data!).assumingMemoryBound(to: UInt8.self)
-        let buffer = UnsafeBufferPointer(start: pointer, count: length)
-        $0.body += Data(Array(buffer))
+        let buffer = UnsafeBufferPointer(start: data, count: length)
+        $0.body.append(buffer)
         return 0
     }
 }
@@ -175,7 +175,7 @@ func onResponseMessageComplete(_ parser: Parser?) -> Int32 {
         $0.version = Version(major: 0, minor: 0)
         $0.headers = [:]
         $0.cookieHeaders = []
-        $0.body = []
+        $0.body = Data()
         return 0
     }
 }

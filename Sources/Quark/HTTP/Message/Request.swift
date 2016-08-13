@@ -54,7 +54,7 @@ extension Request {
         }
     }
 
-    public init(method: Method = .get, uri: URI = URI(path: "/"), headers: Headers = [:], body: Data = []) {
+    public init(method: Method = .get, uri: URI = URI(path: "/"), headers: Headers = [:], body: Data = Data()) {
         self.init(
             method: method,
             uri: uri,
@@ -94,7 +94,7 @@ extension Request {
 }
 
 extension Request {
-    public init(method: Method = .get, uri: String, headers: Headers = [:], body: Data = []) throws {
+    public init(method: Method = .get, uri: String, headers: Headers = [:], body: Data = Data()) throws {
         self.init(
             method: method,
             uri: try URI(uri),

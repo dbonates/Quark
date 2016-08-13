@@ -21,9 +21,15 @@ extension String {
     //        }
     //    }
     public init(cString: UnsafePointer<Int8>, length: Int) {
-        var buffer = [Int8](repeating: 0, count: length + 1)
-        strncpy(&buffer, cString, length)
-        self.init(String(cString: buffer))!
+//        var buffer = [Int8](repeating: 0, count: length + 1)
+//        strncpy(&buffer, cString, length)
+//        self = String(cString: buffer)
+        var string = String()
+        string.reserveCapacity(length)
+        for i in 0 ..< length {
+            string.unicodeScalars.append(UnicodeScalar((UnsafeRawPointer(cString) + i).assumingMemoryBound(to: UInt8.self).pointee))
+        }
+        self = string
     }
 
     public func capitalizedWord() -> String {

@@ -14,18 +14,18 @@ final class BodyStream : Stream {
         closed = true
     }
 
-    func read(upTo byteCount: Int, deadline: Double = .never) throws -> Data {
+    func read(into buffer: inout Data, deadline: Double) throws -> Int {
         throw BodyStreamError.receiveUnsupported
     }
 
-    func write(_ data: Data, deadline: Double = .never) throws {
+    func write(_ buffer: Data, length: Int, deadline: Double) throws {
         if closed {
-            throw StreamError.closedStream(data: data)
+            throw StreamError.closedStream(data: buffer)
         }
-        let newLine: Data = [13, 10]
-        try transport.write(String(data.count, radix: 16).data)
+        let newLine: Data = Data([13, 10])
+        try transport.write(String(length, radix: 16))
         try transport.write(newLine)
-        try transport.write(data)
+        try transport.write(buffer, length: length)
         try transport.write(newLine)
     }
 

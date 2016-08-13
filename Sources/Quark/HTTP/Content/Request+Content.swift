@@ -16,7 +16,7 @@ extension Request {
             method: method,
             uri: uri,
             headers: headers,
-            body: []
+            body: Data()
         )
 
         self.content = content.map
@@ -27,7 +27,7 @@ extension Request {
             method: method,
             uri: uri,
             headers: headers,
-            body: []
+            body: Data()
         )
 
         self.content = content.map
@@ -38,7 +38,7 @@ extension Request {
             method: method,
             uri: uri,
             headers: headers,
-            body: []
+            body: Data()
         )
 
         self.content = content.map
@@ -49,7 +49,7 @@ extension Request {
             method: method,
             uri: uri,
             headers: headers,
-            body: []
+            body: Data()
         )
 
         self.content = content.map
@@ -60,7 +60,7 @@ extension Request {
             method: method,
             uri: uri,
             headers: headers,
-            body: []
+            body: Data()
         )
 
         self.content = try content.asMap()
@@ -73,7 +73,7 @@ extension Request {
             method: method,
             uri: try URI(uri),
             headers: headers,
-            body: []
+            body: Data()
         )
 
         self.content = content.map
@@ -84,7 +84,7 @@ extension Request {
             method: method,
             uri: try URI(uri),
             headers: headers,
-            body: []
+            body: Data()
         )
 
         self.content = content.map
@@ -95,7 +95,7 @@ extension Request {
             method: method,
             uri: try URI(uri),
             headers: headers,
-            body: []
+            body: Data()
         )
 
         self.content = content.map
@@ -106,7 +106,7 @@ extension Request {
             method: method,
             uri: try URI(uri),
             headers: headers,
-            body: []
+            body: Data()
         )
 
         self.content = content.map
@@ -117,7 +117,7 @@ extension Request {
             method: method,
             uri: try URI(uri),
             headers: headers,
-            body: []
+            body: Data()
         )
 
         self.content = try content.asMap()

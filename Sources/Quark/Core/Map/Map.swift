@@ -49,7 +49,7 @@ public protocol MapParser {
 }
 
 extension MapParser {
-    public func parse(_ convertible: DataConvertible) throws -> Map {
+    public func parse(_ convertible: DataRepresentable) throws -> Map {
         return try parse(convertible.data)
     }
 }
@@ -338,7 +338,7 @@ extension Map {
 
         switch self {
         case .bool(let value):
-            return value ? [0xff] : [0x00]
+            return value ? Data([0xff]) : Data([0x00])
 
         case .string(let value):
             return Data(value)
@@ -347,7 +347,7 @@ extension Map {
             return value
 
         case .null:
-            return []
+            return Data()
 
         default:
             throw MapError.incompatibleType

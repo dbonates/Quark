@@ -17,6 +17,7 @@ class ResponseTests : XCTestCase {
 
         response = Response { stream in
             try stream.write("foo")
+            try stream.flush()
         }
         XCTAssertEqual(response.status, .ok)
         XCTAssertEqual(response.version, Version(major: 1, minor: 1))

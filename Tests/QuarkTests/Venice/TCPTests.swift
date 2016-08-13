@@ -72,6 +72,7 @@ class TCPTests : XCTestCase {
                 let connection = try TCPConnection(host: "127.0.0.1", port: port)
                 try connection.open()
                 try connection.write([123])
+                try connection.flush()
             } catch {
                 XCTAssert(false)
             }
@@ -96,6 +97,7 @@ class TCPTests : XCTestCase {
                 XCTAssert(data == "ABC")
 
                 try connection.write("123456789")
+                try connection.flush()
             } catch {
                 XCTFail()
             }
@@ -110,6 +112,7 @@ class TCPTests : XCTestCase {
         XCTAssert(diff > -300 && diff < 300)
 
         try connection.write("ABC")
+        try connection.flush()
 
         let data = try connection.read(upTo: 9)
         XCTAssert(data == "123456789")

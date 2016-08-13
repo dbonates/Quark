@@ -55,6 +55,7 @@ class HTTPSerializerTests: XCTestCase {
 
         let response = Response { (stream: Quark.OutputStream) in
             try stream.write("foo")
+            try stream.flush()
         }
 
         try serializer.serialize(response)
@@ -86,6 +87,7 @@ class HTTPSerializerTests: XCTestCase {
 
         let request = Request { (stream: Quark.OutputStream) in
             try stream.write("foo")
+            try stream.flush()
         }
 
         try serializer.serialize(request)

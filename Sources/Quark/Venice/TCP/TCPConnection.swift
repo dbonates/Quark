@@ -23,7 +23,7 @@ public final class TCPConnection : Stream {
         self.closed = false
     }
 
-    public func write(_ buffer: Data, length: Int, deadline: Double) throws {
+    public func write(_ buffer: Data, length: Int, deadline: Double) throws -> Int {
         let socket = try getSocket()
         try ensureStreamIsOpen()
 
@@ -34,6 +34,8 @@ public final class TCPConnection : Stream {
         if bytesWritten == 0 {
             try ensureLastOperationSucceeded()
         }
+
+        return bytesWritten
     }
 
     public func flush(deadline: Double) throws {
@@ -44,15 +46,15 @@ public final class TCPConnection : Stream {
         try ensureLastOperationSucceeded()
     }
 
-    public func read(into buffer: inout Data, deadline: Double = .never) throws -> Int {
+    public func read(into buffer: inout Data, length: Int, deadline: Double = .never) throws -> Int {
         let socket = try getSocket()
         try ensureStreamIsOpen()
 
-        let received = buffer.withUnsafeMutableBytes {
-            tcprecvlh(socket, $0, 1, buffer.count, deadline.int64milliseconds)
+        let bytesRead = buffer.withUnsafeMutableBytes {
+            tcprecvlh(socket, $0, 1, length, deadline.int64milliseconds)
         }
 
-        if received == 0 {
+        if bytesRead == 0 {
             do {
                 try ensureLastOperationSucceeded()
             } catch SystemError.connectionResetByPeer {
@@ -61,7 +63,7 @@ public final class TCPConnection : Stream {
             }
         }
 
-        return received
+        return bytesRead
     }
 
 //    public func read(into buffer: inout Data, deadline: Double = .never) throws -> Int {

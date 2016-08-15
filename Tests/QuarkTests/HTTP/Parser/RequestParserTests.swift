@@ -178,7 +178,7 @@ class RequestParserTests : XCTestCase {
                         XCTAssert(request.version.major == 1)
                         XCTAssert(request.version.minor == 1)
                         XCTAssert(request.headers["Content-Length"] == "4")
-                        XCTAssert(request.body == .buffer("Zewo"))
+                        XCTAssert(request.body == .buffer(Data("Zewo")))
                     }
                 }
             }
@@ -200,7 +200,7 @@ class RequestParserTests : XCTestCase {
                     XCTAssert(request.version.major == 1)
                     XCTAssert(request.version.minor == 1)
                     XCTAssert(request.headers["Content-Length"] == "4")
-                    XCTAssert(request.body == .buffer("Zewo"))
+                    XCTAssert(request.body == .buffer(Data("Zewo")))
                 }
             } catch {
                 XCTFail()

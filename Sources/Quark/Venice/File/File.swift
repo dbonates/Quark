@@ -86,26 +86,32 @@ public final class File : Stream {
 }
 
 extension File {
-    public func write(_ data: Data, length: Int, deadline: Double) throws {
+    public func write(_ data: Data, length: Int, deadline: Double) throws -> Int {
         try ensureFileIsOpen()
 
-        _ = data.withUnsafeBytes {
+        let bytesWritten = data.withUnsafeBytes {
             filewrite(file, $0, length, deadline.int64milliseconds)
         }
 
-        try ensureLastOperationSucceeded()
-    }
-
-    public func read(into buffer: inout Data, deadline: Double) throws -> Int {
-        try ensureFileIsOpen()
-
-        let read = buffer.withUnsafeMutableBytes {
-            filereadlh(file, $0, 1, buffer.count, deadline.int64milliseconds)
+        if bytesWritten == 0 {
+            try ensureLastOperationSucceeded()
         }
 
-        try ensureLastOperationSucceeded()
+        return bytesWritten
+    }
 
-        return read
+    public func read(into buffer: inout Data, length: Int, deadline: Double) throws -> Int {
+        try ensureFileIsOpen()
+
+        let bytesRead = buffer.withUnsafeMutableBytes {
+            filereadlh(file, $0, 1, length, deadline.int64milliseconds)
+        }
+
+        if bytesRead == 0 {
+            try ensureLastOperationSucceeded()
+        }
+
+        return bytesRead
     }
 
 //    public func read(_ byteCount: Int, deadline: Double = .never) throws -> Data {
@@ -127,13 +133,15 @@ extension File {
         var outputBuffer = Data()
 
         while true {
-            let outputRead = try read(into: &inputBuffer, deadline: deadline)
+            let inputRead = try read(into: &inputBuffer, deadline: deadline)
 
-            if outputRead == 0 || cursorIsAtEndOfFile {
+            if inputRead == 0 || cursorIsAtEndOfFile {
                 break
             }
 
-            outputBuffer.append(Data(inputBuffer.prefix(outputRead)))
+            inputBuffer.withUnsafeBytes {
+                outputBuffer.append($0, count: inputRead)
+            }
         }
 
         return outputBuffer

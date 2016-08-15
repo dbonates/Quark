@@ -6,10 +6,6 @@ public final class Drain : DataRepresentable, Stream {
         return buffer
     }
 
-    public convenience init() {
-        self.init(buffer: Data())
-    }
-
     public init(stream: InputStream, deadline: Double = .never) {
         var inputBuffer = Data(count: 2048)
         var outputBuffer = Data()
@@ -20,7 +16,12 @@ public final class Drain : DataRepresentable, Stream {
 
         while !stream.closed {
             if let bytesRead = try? stream.read(into: &inputBuffer, deadline: deadline) {
-                outputBuffer.append(Data(inputBuffer.prefix(bytesRead)))
+                if bytesRead == 0 {
+                    break
+                }
+                inputBuffer.withUnsafeBytes {
+                    outputBuffer.append($0, count: bytesRead)
+                }
             } else {
                 break
             }
@@ -29,7 +30,7 @@ public final class Drain : DataRepresentable, Stream {
         self.buffer = outputBuffer
     }
 
-    public init(buffer: Data) {
+    public init(buffer: Data = Data()) {
         self.buffer = buffer
     }
 
@@ -41,20 +42,34 @@ public final class Drain : DataRepresentable, Stream {
         closed = true
     }
 
-    public func read(into buffer: inout Data, deadline: Double = .never) throws -> Int {
-        if buffer.count >= self.buffer.count {
-            close()
-            return self.buffer.count
+    public func read(into targetBuffer: inout Data, length: Int, deadline: Double = .never) throws -> Int {
+        if closed && buffer.count == 0 {
+            throw StreamError.closedStream(data: Data())
         }
 
-        buffer = Data(self.buffer.prefix(upTo: buffer.count))
-        self.buffer.removeFirst(buffer.count)
+        if buffer.count == 0 {
+            return 0
+        }
 
-        return buffer.count
+        if length >= buffer.count {
+            targetBuffer.replaceSubrange(0 ..< buffer.count, with: buffer)
+            let read = buffer.count
+            buffer = Data()
+            return read
+        }
+
+        targetBuffer.replaceSubrange(0 ..< length, with: buffer[0 ..< length])
+        buffer.removeFirst(length)
+
+        return length
     }
 
-    public func write(_ data: Data, length: Int, deadline: Double = .never) throws {
-        buffer.append(data)
+    public func write(_ data: Data, length: Int, deadline: Double = .never) throws -> Int {
+        data.withUnsafeBytes {
+            buffer.append($0, count: length)
+        }
+
+        return length
     }
 
     public func flush(deadline: Double = .never) throws {}

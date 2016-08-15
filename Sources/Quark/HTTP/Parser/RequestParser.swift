@@ -40,11 +40,7 @@ public final class RequestParser {
     var requests: [Request] = []
     var buffer: Data
 
-    convenience public init(stream: Stream) {
-        self.init(stream: stream, bufferSize: 2048)
-    }
-
-    public init(stream: Stream, bufferSize: Int) {
+    public init(stream: Stream, bufferSize: Int = 2048) {
         self.stream = stream
         self.buffer = Data(count: bufferSize)
         self.context = RequestContext.allocate(capacity: 1)

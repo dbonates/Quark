@@ -18,7 +18,7 @@ extension Map : MustacheBoxable {
         case .string(let string):
             return Box(boxable: string)
         case .data(let data):
-            return Box(boxable: String(describing: data))
+            return Box(boxable: data.base64EncodedString())
         case .array(let array):
             var arr: [MustacheBox] = []
 
@@ -48,8 +48,9 @@ public struct MustacheSerializer : MapSerializer {
 
     public func serialize(_ map: Map) throws -> Data {
         let templateFile = try File(path: templatePath)
+        let data = try templateFile.readAll()
 
-        guard let templateString = try? String(data: templateFile.readAll()) else {
+        guard let templateString = try? String(data: data) else {
             throw MustacheSerializerError.unsupportedTemplateEncoding
         }
 

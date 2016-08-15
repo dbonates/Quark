@@ -58,6 +58,16 @@ public protocol MapSerializer {
     func serialize(_ map: Map) throws -> Data
 }
 
+public protocol MapStreamParser {
+    init(stream: Stream)
+    func parse() throws -> Map
+}
+
+public protocol MapStreamSerializer {
+    init(stream: Stream)
+    func serialize(_ map: Map) throws
+}
+
 // MARK: Initializers
 
 extension Map {
@@ -318,7 +328,7 @@ extension Map {
             return value
 
         case .data(let value):
-            return String(describing: value)
+            return try String(data: value)
 
         case .array:
             throw MapError.incompatibleType

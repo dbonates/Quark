@@ -71,12 +71,32 @@ public struct Server {
     }
 }
 
+func retry(times: Int, waiting duration: Double, work: (Void) throws -> Void) throws {
+    var failCount = 0
+    var lastError: Error!
+    while failCount < times {
+        do {
+            try work()
+        } catch {
+            failCount += 1
+            lastError = error
+            print("Error: \(error)")
+            print("Retrying in \(duration) seconds.")
+            nap(for: duration)
+            print("Retrying.")
+        }
+    }
+    throw lastError
+}
+
 extension Server {
     public func start() throws {
         printHeader()
-        while true {
-            let stream = try tcpHost.accept()
-            co { do { try self.process(stream: stream) } catch { self.failure(error) } }
+        try retry(times: 10, waiting: 5.seconds) {
+            while true {
+                let stream = try tcpHost.accept()
+                co { do { try self.process(stream: stream) } catch { self.failure(error) } }
+            }
         }
     }
 
@@ -85,8 +105,8 @@ extension Server {
     }
 
     public func process(stream: Stream) throws {
-        let parser = RequestParser(stream: stream)
-        let serializer = ResponseSerializer(stream: stream)
+        let parser = RequestParser(stream: stream, bufferSize: bufferSize)
+        let serializer = ResponseSerializer(stream: stream, bufferSize: bufferSize)
 
         while !stream.closed {
             do {
